@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/list_item_height_single"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/list_item_padding_horizontal"
+    android:paddingEnd="@dimen/list_item_padding_horizontal"
+    android:paddingTop="@dimen/list_item_padding_vertical"
+    android:paddingBottom="@dimen/list_item_padding_vertical"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Optional: App Icon (can be hidden based on settings) -->
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="@dimen/icon_size_standard"
+        android:layout_height="@dimen/icon_size_standard"
+        android:layout_marginEnd="@dimen/spacing_medium"
+        android:visibility="gone"
+        android:contentDescription="App Icon" />
+
+    <!-- App Name (Text-based) -->
+    <TextView
+        android:id="@+id/app_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/AppNameTextStyle"
+        android:text="App Name"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp" />
+
+    <!-- Launch Counter Badge -->
+    <TextView
+        android:id="@+id/launch_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="0"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:paddingStart="@dimen/spacing_tiny"
+        android:paddingEnd="@dimen/spacing_tiny" />
+
+</LinearLayout>
