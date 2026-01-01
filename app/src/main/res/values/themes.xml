@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.MinimalistLauncher" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/gray_800</item>
+        <item name="colorPrimaryVariant">@color/gray_900</item>
+        <item name="colorOnPrimary">@color/gray_100</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/gray_600</item>
+        <item name="colorSecondaryVariant">@color/gray_700</item>
+        <item name="colorOnSecondary">@color/gray_100</item>
+        
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/gray_950</item>
+        <item name="colorSurface">@color/gray_900</item>
+        <item name="colorOnBackground">@color/gray_100</item>
+        <item name="colorOnSurface">@color/gray_200</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/gray_950</item>
+        <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Remove window background for cleaner look -->
+        <item name="android:windowBackground">@color/gray_950</item>
+        
+        <!-- Text appearance -->
+        <item name="android:textColorPrimary">@color/gray_100</item>
+        <item name="android:textColorSecondary">@color/gray_400</item>
+    </style>
+    
+    <!-- Large time display on home screen -->
+    <style name="TimeTextStyle">
+        <item name="android:textSize">64sp</item>
+        <item name="android:textColor">@color/gray_100</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    
+    <!-- Date text style -->
+    <style name="DateTextStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/gray_400</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    
+    <!-- App name text style (text-based) -->
+    <style name="AppNameTextStyle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/gray_200</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+    
+    <!-- Launch counter badge text -->
+    <style name="LaunchCounterTextStyle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/gray_500</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <!-- Screen time text style -->
+    <style name="ScreenTimeTextStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/gray_400</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    
+    <!-- ========================================= -->
+    <!-- Comprehensive TextAppearance Styles      -->
+    <!-- ========================================= -->
+    
+    <!-- Display Styles (Large, prominent text) -->
+    <style name="TextAppearance.MinimalistLauncher.Display" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:textSize">@dimen/text_size_time</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">sans-serif-light</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    
+    <!-- Headline Styles (Section headers, page titles) -->
+    <style name="TextAppearance.MinimalistLauncher.Headline" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">@dimen/text_size_header</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    
+    <style name="TextAppearance.MinimalistLauncher.HeadlineBold" parent="TextAppearance.MinimalistLauncher.Headline">
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Title Styles (List section headers) -->
+    <style name="TextAppearance.MinimalistLauncher.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">@dimen/text_size_body</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <!-- Body Styles (App names, primary content) -->
+    <style name="TextAppearance.MinimalistLauncher.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">@dimen/text_size_body</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+    </style>
+    
+    <style name="TextAppearance.MinimalistLauncher.BodySecondary" parent="TextAppearance.MinimalistLauncher.Body">
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+    
+    <!-- Label Styles (Captions, counters, hints) -->
+    <style name="TextAppearance.MinimalistLauncher.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+    
+    <style name="TextAppearance.MinimalistLauncher.LabelSmall" parent="TextAppearance.MinimalistLauncher.Label">
+        <item name="android:textSize">@dimen/text_size_caption</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+    </style>
+    
+    <!-- ========================================= -->
+    <!-- Base Widget Style                        -->
+    <!-- ========================================= -->
+    
+    <!-- Base style for all MinimalistLauncher widgets -->
+    <style name="Widget.MinimalistLauncher" parent="">
+        <!-- Empty base style for inheritance -->
+    </style>
+    
+    <!-- ========================================= -->
+    <!-- Button Styles                             -->
+    <!-- ========================================= -->
+    
+    <!-- Filled Button (Primary action) -->
+    <style name="Widget.MinimalistLauncher.Button">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:paddingStart">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/button_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/button_padding_vertical</item>
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <!-- Outlined Button (Secondary action) -->
+    <style name="Widget.MinimalistLauncher.Button.Outlined">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:paddingStart">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/button_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/button_padding_vertical</item>
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <!-- Text Button (Tertiary action) -->
+    <style name="Widget.MinimalistLauncher.Button.Text">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:paddingStart">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/button_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/button_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/button_padding_vertical</item>
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <!-- Icon Button -->
+    <style name="Widget.MinimalistLauncher.Button.Icon">
+        <item name="android:minWidth">@dimen/touch_target_min</item>
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+    </style>
+    
+    <!-- ========================================= -->
+    <!-- List Item Styles                          -->
+    <!-- ========================================= -->
+    
+    <style name="Widget.MinimalistLauncher.ListItem">
+        <item name="android:minHeight">@dimen/list_item_height_single</item>
+        <item name="android:paddingStart">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+    
+    <style name="Widget.MinimalistLauncher.ListItem.TwoLine">
+        <item name="android:minHeight">@dimen/list_item_height_two_line</item>
+    </style>
+</resources>

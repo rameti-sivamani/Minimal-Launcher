@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Three minimalist horizontal lines representing a clean app list -->
+    <group
+        android:translateX="54"
+        android:translateY="54">
+        
+        <!-- Top line (longest) - represents the minimalist text-based app list -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:pathData="M-24,-14 L24,-14"/>
+        
+        <!-- Middle line (medium) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:pathData="M-20,0 L20,0"/>
+        
+        <!-- Bottom line (shortest) - creates visual hierarchy -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:pathData="M-16,14 L16,14"/>
+    </group>
+</vector>

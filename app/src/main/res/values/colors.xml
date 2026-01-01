@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Grayscale Palette -->
+    <color name="gray_950">#0A0A0A</color>
+    <color name="gray_900">#121212</color>
+    <color name="gray_800">#1E1E1E</color>
+    <color name="gray_700">#2D2D2D</color>
+    <color name="gray_600">#3D3D3D</color>
+    <color name="gray_500">#6B6B6B</color>
+    <color name="gray_400">#9B9B9B</color>
+    <color name="gray_300">#B4B4B4</color>
+    <color name="gray_200">#D4D4D4</color>
+    <color name="gray_100">#E8E8E8</color>
+    <color name="gray_50">#F5F5F5</color>
+    
+    <!-- Light Mode Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="light_surface">#F5F5F5</color>
+    <color name="light_background">#FFFFFF</color>
+    
+    <!-- Dark Mode Theme Colors (OLED Black) -->
+    <color name="background">#000000</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <color name="text_tertiary">#666666</color>
+    <color name="divider">#2C2C2C</color>
+    
+    <!-- Light Mode Theme Colors (for future use) -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="surface_light">#F5F5F5</color>
+    <color name="text_primary_light">#000000</color>
+    <color name="text_secondary_light">#666666</color>
+    <color name="text_tertiary_light">#999999</color>
+    <color name="divider_light">#E0E0E0</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent">#424242</color>
+    <color name="accent_light">#CCCCCC</color>
+    
+    <!-- Status Colors -->
+    <color name="warning">#D4A574</color>
+    <color name="focus_active">#FF9800</color>
+    <color name="focus_inactive">#B0BEC5</color>
+    
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+    
+    <!-- Launcher Icon Background -->
+    <color name="ic_launcher_background">#000000</color>
+</resources>

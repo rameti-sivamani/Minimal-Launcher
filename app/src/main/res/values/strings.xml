@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">Minimalist Launcher</string>
+    <string name="app_icon">App Icon</string>
+    
+    <!-- Home Screen -->
+    <string name="no_focus_mode">No focus mode active</string>
+    <string name="tap_for_apps">Tap to view apps</string>
+    
+    <!-- App List -->
+    <string name="search_apps">Search apps…</string>
+    <string name="no_apps_found">No apps found</string>
+    <string name="launch_warning_title">Do you really need this?</string>
+    <string name="launch_warning_message">You\'ve opened this app %d times today. Take a moment to consider if you really need to use it right now.</string>
+    <string name="launch_anyway">Open Anyway</string>
+    <string name="cancel">Cancel</string>
+    <string name="launches_today">%d launches today</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="permissions">Permissions</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="permission_granted">Granted</string>
+    <string name="set_as_default">Set as Default Launcher</string>
+    <string name="set_as_default_desc">Make Minimalist Launcher your home screen</string>
+    <string name="already_default">Already Default</string>
+    
+    <!-- Appearance -->
+    <string name="appearance">Appearance</string>
+    <string name="show_app_icons">Show App Icons</string>
+    <string name="show_app_icons_desc">Display icons next to app names</string>
+    <string name="grayscale_mode">Grayscale Mode</string>
+    <string name="grayscale_mode_desc">Reduce visual stimulation</string>
+    
+    <!-- Usage Awareness -->
+    <string name="usage_awareness">Usage Awareness</string>
+    <string name="launch_warning_threshold">Launch Warning Threshold</string>
+    <string name="launch_warning_threshold_desc">Show warning after this many launches (default: 10)</string>
+    <string name="enable_launch_warnings">Enable Launch Warnings</string>
+    <string name="enable_launch_warnings_desc">Prompt before opening frequently used apps</string>
+    
+    <!-- Focus Mode -->
+    <string name="focus_mode">Focus Mode</string>
+    <string name="focus_modes">Focus Modes</string>
+    <string name="create_focus_mode">Create Focus Mode</string>
+    <string name="edit_focus_mode">Edit Focus Mode</string>
+    <string name="delete_focus_mode">Delete Focus Mode</string>
+    <string name="focus_mode_name">Mode Name</string>
+    <string name="focus_mode_name_hint">e.g., Deep Work, Study, Relax</string>
+    <string name="allowed_apps">Allowed Apps</string>
+    <string name="select_apps">Select Apps</string>
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="activate">Activate</string>
+    <string name="deactivate">Deactivate</string>
+    <string name="save">Save</string>
+    <string name="deep_work">Deep Work</string>
+    <string name="deep_work_desc">Essential apps only (calls, messages, calendar)</string>
+    
+    <!-- General -->
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="reset_data">Reset All Data</string>
+    <string name="reset_data_desc">Clear all usage statistics and counters</string>
+    <string name="confirm">Confirm</string>
+    
+    <!-- App Management -->
+    <string name="uninstall">Uninstall</string>
+    <string name="app_info">App Info</string>
+    <string name="hide_app">Hide App</string>
+    <string name="unhide_app">Unhide App</string>
+    <string name="system_app_warning">System App</string>
+    <string name="uninstall_confirmation">Uninstall this app?</string>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="remove_from_favorites">Remove from Favorites</string>
+    <string name="hidden_apps">Hidden Apps</string>
+    <string name="manage_hidden_apps">Manage Hidden Apps</string>
+    
+    <!-- Customization -->
+    <string name="font_size">Font Size</string>
+    <string name="theme">Theme</string>
+    <string name="oled_black">OLED Black</string>
+    <string name="dark_gray">Dark Gray</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="battery_percentage">Show Battery Percentage</string>
+    <string name="show_day_of_week">Show Day of Week</string>
+    <string name="time_format">Time Format</string>
+    <string name="date_format">Date Format</string>
+</resources>

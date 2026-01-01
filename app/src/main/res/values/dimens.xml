@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen Margins & Padding -->
+    <dimen name="screen_padding_horizontal">16dp</dimen>
+    <dimen name="screen_padding_vertical">16dp</dimen>
+    <dimen name="screen_padding_top">16dp</dimen>
+    <dimen name="screen_padding_bottom">16dp</dimen>
+    
+    <!-- Component Spacing -->
+    <dimen name="spacing_section">24dp</dimen>
+    <dimen name="spacing_large">16dp</dimen>
+    <dimen name="spacing_medium">12dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_tiny">6dp</dimen>
+    <dimen name="spacing_micro">4dp</dimen>
+    
+    <!-- Touch Targets -->
+    <dimen name="touch_target_min">48dp</dimen>
+    <dimen name="icon_size_standard">24dp</dimen>
+    <dimen name="icon_size_small">20dp</dimen>
+    
+    <!-- Button Dimensions -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_padding_horizontal">24dp</dimen>
+    <dimen name="button_padding_vertical">12dp</dimen>
+    <dimen name="button_corner_radius">8dp</dimen>
+    
+    <!-- List Items -->
+    <dimen name="list_item_height_single">48dp</dimen>
+    <dimen name="list_item_height_two_line">64dp</dimen>
+    <dimen name="list_item_padding_horizontal">16dp</dimen>
+    <dimen name="list_item_padding_vertical">8dp</dimen>
+    <dimen name="list_item_spacing">8dp</dimen>
+    
+    <!-- Search Bar -->
+    <dimen name="search_bar_height">56dp</dimen>
+    <dimen name="search_bar_padding_horizontal">16dp</dimen>
+    <dimen name="search_bar_corner_radius">24dp</dimen>
+    <dimen name="search_bar_margin">16dp</dimen>
+    
+    <!-- Cards -->
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_margin">8dp</dimen>
+    
+    <!-- Text Sizes -->
+    <dimen name="text_size_time">48sp</dimen>
+    <dimen name="text_size_date">16sp</dimen>
+    <dimen name="text_size_header">20sp</dimen>
+    <dimen name="text_size_body">16sp</dimen>
+    <dimen name="text_size_secondary">14sp</dimen>
+    <dimen name="text_size_caption">12sp</dimen>
+    
+    <!-- Dividers -->
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="divider_margin_start">16dp</dimen>
+    
+    <!-- App Bar -->
+    <dimen name="app_bar_height">56dp</dimen>
+    <dimen name="app_bar_elevation">4dp</dimen>
+    
+    <!-- FAB -->
+    <dimen name="fab_margin">16dp</dimen>
+</resources>
