@@ -46,3 +46,8 @@ obj/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Release signing (never commit these)
+keystore.properties
+*.jks
+*.keystore
