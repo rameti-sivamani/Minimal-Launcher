@@ -1,10 +1,12 @@
 package com.minimalist.launcher.utils;
 
 import com.minimalist.launcher.data.database.entities.FocusMode;
+import com.minimalist.launcher.data.focus.FocusSchedule;
 import com.minimalist.launcher.data.model.AppInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +21,7 @@ public class AppFilterHelper {
      * Returns only apps that are in the allowlist
      */
     public static List<AppInfo> filterByFocusMode(List<AppInfo> allApps, FocusMode focusMode) {
-        if (focusMode == null || !focusMode.isActive()) {
+        if (focusMode == null) {
             return allApps;
         }
 
@@ -39,6 +41,36 @@ public class AppFilterHelper {
         }
 
         return filteredApps;
+    }
+
+    /**
+     * The focus mode in effect right now: a manually activated mode wins,
+     * otherwise the first mode whose schedule covers the current time.
+     */
+    public static FocusMode resolveActive(List<FocusMode> modes, Calendar now) {
+        if (modes == null) {
+            return null;
+        }
+        for (FocusMode mode : modes) {
+            if (mode.isActive()) {
+                return mode;
+            }
+        }
+        for (FocusMode mode : modes) {
+            if (isScheduledNow(mode, now)) {
+                return mode;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isScheduledNow(FocusMode mode, Calendar now) {
+        if (!mode.isHasSchedule()) {
+            return false;
+        }
+        int day = FocusSchedule.isoDayFromCalendar(now.get(Calendar.DAY_OF_WEEK));
+        int minute = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        return FocusSchedule.isActive(mode.getStartTime(), mode.getEndTime(), mode.getActiveDays(), day, minute);
     }
 
     /**

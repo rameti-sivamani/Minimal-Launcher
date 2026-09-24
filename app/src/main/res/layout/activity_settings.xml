@@ -133,6 +133,19 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/usage_report_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/usage_report" />
+
+                <TextView
+                    android:id="@+id/usage_report_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/usage_access_setting"
                 style="@style/SettingsRow">
 
@@ -168,6 +181,19 @@
 
                 <TextView
                     android:id="@+id/threshold_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/app_limits_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/app_time_limits" />
+
+                <TextView
+                    android:id="@+id/app_limits_summary"
                     style="@style/SettingsRowSummary" />
             </LinearLayout>
 

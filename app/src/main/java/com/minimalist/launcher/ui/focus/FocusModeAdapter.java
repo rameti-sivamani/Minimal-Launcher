@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.database.entities.FocusMode;
+import com.minimalist.launcher.data.focus.FocusSchedule;
+import com.minimalist.launcher.utils.AppFilterHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -61,6 +64,18 @@ public class FocusModeAdapter extends RecyclerView.Adapter<FocusModeAdapter.Focu
         notifyDataSetChanged();
     }
     
+    /**
+     * e.g. "09:00–17:00 · Mon, Tue, Wed"
+     */
+    static String describeSchedule(android.content.Context context, FocusMode mode) {
+        String[] shortDays = context.getResources().getStringArray(R.array.weekdays_short);
+        List<String> names = new ArrayList<>();
+        for (int day : FocusSchedule.parseDays(mode.getActiveDays())) {
+            names.add(shortDays[day - 1]);
+        }
+        return mode.getStartTime() + "–" + mode.getEndTime() + " · " + String.join(", ", names);
+    }
+
     class FocusModeViewHolder extends RecyclerView.ViewHolder {
         
         private final TextView nameText;
@@ -79,15 +94,23 @@ public class FocusModeAdapter extends RecyclerView.Adapter<FocusModeAdapter.Focu
         public void bind(FocusMode focusMode) {
             nameText.setText(focusMode.getName());
             
+            android.content.Context context = itemView.getContext();
+            boolean scheduledNow = AppFilterHelper.isScheduledNow(focusMode, Calendar.getInstance());
+            String status;
             if (focusMode.isActive()) {
-                statusText.setText(R.string.active);
-                statusText.setTextColor(itemView.getContext().getColor(R.color.focus_active));
-                activateButton.setText(R.string.deactivate);
+                status = context.getString(R.string.active);
+            } else if (scheduledNow) {
+                status = context.getString(R.string.active_by_schedule);
             } else {
-                statusText.setText(R.string.inactive);
-                statusText.setTextColor(itemView.getContext().getColor(R.color.gray_500));
-                activateButton.setText(R.string.activate);
+                status = context.getString(R.string.inactive);
             }
+            if (focusMode.isHasSchedule()) {
+                status = context.getString(R.string.status_with_schedule, status, describeSchedule(context, focusMode));
+            }
+            statusText.setText(status);
+            statusText.setTextColor(context.getColor(
+                    focusMode.isActive() || scheduledNow ? R.color.focus_active : R.color.gray_500));
+            activateButton.setText(focusMode.isActive() ? R.string.deactivate : R.string.activate);
             
             activateButton.setOnClickListener(v -> {
                 if (activateListener != null) {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.model.AppInfo;
+import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
     private boolean showIcons = false;
     private int textColor = 0xFFE8E8E8;
     private int secondaryTextColor = 0xFF9B9B9B;
+    private float nameSizeSp = 19f;
+    private float badgeSizeSp = 14f;
 
     public interface OnAppClickListener {
         void onAppClick(AppInfo app);
@@ -71,11 +74,34 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
     /**
      * Update icon visibility and theme colors in one pass
      */
-    public void setAppearance(boolean showIcons, int textColor, int secondaryTextColor) {
+    public void setAppearance(boolean showIcons, int textColor, int secondaryTextColor,
+            float nameSizeSp, float badgeSizeSp) {
         this.showIcons = showIcons;
         this.textColor = textColor;
         this.secondaryTextColor = secondaryTextColor;
+        this.nameSizeSp = nameSizeSp;
+        this.badgeSizeSp = badgeSizeSp;
         notifyDataSetChanged();
+    }
+
+    /**
+     * e.g. "25m / 30m · 3×", "1h 5m", "2×"; empty when there is nothing to show
+     */
+    static String buildBadge(AppInfo app) {
+        StringBuilder badge = new StringBuilder();
+        if (app.getUsageMillis() >= 60_000 || app.getLimitMinutes() > 0) {
+            badge.append(ScreenTimeCalculator.format(app.getUsageMillis()));
+            if (app.getLimitMinutes() > 0) {
+                badge.append(" / ").append(ScreenTimeCalculator.format(app.getLimitMinutes() * 60_000L));
+            }
+        }
+        if (app.getLaunchCount() > 0) {
+            if (badge.length() > 0) {
+                badge.append(" · ");
+            }
+            badge.append(app.getLaunchCount()).append('×');
+        }
+        return badge.toString();
     }
 
     /**
@@ -97,7 +123,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
         public void bind(AppInfo app) {
             appName.setText(app.getAppName());
             appName.setTextColor(textColor);
+            appName.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, nameSizeSp);
             launchCounter.setTextColor(secondaryTextColor);
+            launchCounter.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, badgeSizeSp);
 
             // Show/hide icon based on settings
             if (showIcons && app.getIcon() != null) {
@@ -108,12 +136,13 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
                 appIcon.setVisibility(View.GONE);
             }
 
-            // Show launch counter if > 0
-            if (app.getLaunchCount() > 0) {
-                launchCounter.setText(String.valueOf(app.getLaunchCount()));
-                launchCounter.setVisibility(View.VISIBLE);
-            } else {
+            // Badge: today's time (and limit), launch count
+            String badge = buildBadge(app);
+            if (badge.isEmpty()) {
                 launchCounter.setVisibility(View.GONE);
+            } else {
+                launchCounter.setText(badge);
+                launchCounter.setVisibility(View.VISIBLE);
             }
 
             // Click listener

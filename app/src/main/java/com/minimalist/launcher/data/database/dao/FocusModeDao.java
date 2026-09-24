@@ -43,6 +43,12 @@ public interface FocusModeDao {
     LiveData<List<FocusMode>> getAllFocusModes();
 
     /**
+     * Get all focus modes (non-live, for schedule evaluation)
+     */
+    @Query("SELECT * FROM focus_mode ORDER BY name ASC")
+    List<FocusMode> getAllFocusModesSync();
+
+    /**
      * Get currently active focus mode
      */
     @Query("SELECT * FROM focus_mode WHERE isActive = 1 LIMIT 1")

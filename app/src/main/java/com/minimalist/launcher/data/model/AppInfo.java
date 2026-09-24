@@ -14,6 +14,8 @@ public class AppInfo implements Comparable<AppInfo> {
     private boolean isSystemApp;
     private int launchCount; // Daily launch count
     private long installTime; // First install time, used for sorting
+    private long usageMillis; // Foreground time today (0 without usage access)
+    private int limitMinutes; // Daily time limit, 0 = none
 
     public AppInfo(String appName, String packageName, Drawable icon, boolean isSystemApp) {
         this.appName = appName;
@@ -62,6 +64,22 @@ public class AppInfo implements Comparable<AppInfo> {
 
     public void setLaunchCount(int launchCount) {
         this.launchCount = launchCount;
+    }
+
+    public long getUsageMillis() {
+        return usageMillis;
+    }
+
+    public void setUsageMillis(long usageMillis) {
+        this.usageMillis = usageMillis;
+    }
+
+    public int getLimitMinutes() {
+        return limitMinutes;
+    }
+
+    public void setLimitMinutes(int limitMinutes) {
+        this.limitMinutes = limitMinutes;
     }
 
     public long getInstallTime() {

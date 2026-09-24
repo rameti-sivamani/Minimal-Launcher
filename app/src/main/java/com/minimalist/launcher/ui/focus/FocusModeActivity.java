@@ -1,5 +1,6 @@
 package com.minimalist.launcher.ui.focus;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.EditText;
@@ -16,14 +17,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.database.entities.FocusMode;
+import com.minimalist.launcher.data.focus.FocusSchedule;
 import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.utils.AppFilterHelper;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Create, edit, activate and delete focus modes.
@@ -153,17 +157,119 @@ public class FocusModeActivity extends AppCompatActivity {
                         Toast.makeText(this, R.string.focus_mode_needs_apps, Toast.LENGTH_LONG).show();
                         return;
                     }
-                    String allowedApps = String.join(",", allowed);
-                    if (existing == null) {
-                        viewModel.createFocusMode(new FocusMode(name, allowedApps));
-                    } else {
-                        existing.setName(name);
-                        existing.setAllowedApps(allowedApps);
-                        viewModel.updateFocusMode(existing);
-                    }
+                    FocusMode mode = existing != null ? existing : new FocusMode(name, "");
+                    mode.setName(name);
+                    mode.setAllowedApps(String.join(",", allowed));
+                    showScheduleChoice(mode, existing == null);
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    // ---------------------------------------------------------------------
+    // Schedule: optional start time, end time and days of the week
+    // ---------------------------------------------------------------------
+
+    private void showScheduleChoice(FocusMode mode, boolean isNew) {
+        String[] options = {
+                getString(R.string.schedule_none),
+                getString(R.string.schedule_set)
+        };
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.schedule_title)
+                .setCancelable(false)
+                .setSingleChoiceItems(options, mode.isHasSchedule() ? 1 : 0, (dialog, which) -> {
+                    dialog.dismiss();
+                    if (which == 0) {
+                        mode.setHasSchedule(false);
+                        save(mode, isNew);
+                    } else {
+                        pickStartTime(mode, isNew);
+                    }
+                })
+                .show();
+    }
+
+    private void pickStartTime(FocusMode mode, boolean isNew) {
+        int start = FocusSchedule.parseMinutes(mode.getStartTime());
+        if (start < 0) {
+            start = 9 * 60;
+        }
+        showTimePicker(R.string.schedule_start, start, minutes -> {
+            mode.setStartTime(FocusSchedule.formatMinutes(minutes));
+            pickEndTime(mode, isNew);
+        });
+    }
+
+    private void pickEndTime(FocusMode mode, boolean isNew) {
+        int end = FocusSchedule.parseMinutes(mode.getEndTime());
+        if (end < 0) {
+            end = 17 * 60;
+        }
+        showTimePicker(R.string.schedule_end, end, minutes -> {
+            if (FocusSchedule.formatMinutes(minutes).equals(mode.getStartTime())) {
+                Toast.makeText(this, R.string.schedule_same_times, Toast.LENGTH_LONG).show();
+                pickEndTime(mode, isNew);
+                return;
+            }
+            mode.setEndTime(FocusSchedule.formatMinutes(minutes));
+            pickDays(mode, isNew);
+        });
+    }
+
+    private void pickDays(FocusMode mode, boolean isNew) {
+        String[] dayNames = getResources().getStringArray(R.array.weekdays); // Monday first
+        Set<Integer> current = FocusSchedule.parseDays(mode.getActiveDays());
+        if (current.isEmpty()) {
+            current = new TreeSet<>(Arrays.asList(1, 2, 3, 4, 5));
+        }
+        boolean[] checked = new boolean[7];
+        for (int i = 0; i < 7; i++) {
+            checked[i] = current.contains(i + 1);
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.schedule_days)
+                .setCancelable(false)
+                .setMultiChoiceItems(dayNames, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton(R.string.save, (dialog, which) -> {
+                    List<Integer> days = new ArrayList<>();
+                    for (int i = 0; i < 7; i++) {
+                        if (checked[i]) {
+                            days.add(i + 1);
+                        }
+                    }
+                    if (days.isEmpty()) {
+                        Toast.makeText(this, R.string.schedule_needs_days, Toast.LENGTH_LONG).show();
+                        pickDays(mode, isNew);
+                        return;
+                    }
+                    mode.setActiveDays(FocusSchedule.formatDays(days));
+                    mode.setHasSchedule(true);
+                    save(mode, isNew);
+                })
+                .show();
+    }
+
+    private interface OnTimePicked {
+        void onPicked(int minutesOfDay);
+    }
+
+    private void showTimePicker(int titleRes, int minutesOfDay, OnTimePicked onPicked) {
+        TimePickerDialog dialog = new TimePickerDialog(this,
+                (view, hour, minute) -> onPicked.onPicked(hour * 60 + minute),
+                minutesOfDay / 60, minutesOfDay % 60,
+                android.text.format.DateFormat.is24HourFormat(this));
+        dialog.setTitle(titleRes);
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    private void save(FocusMode mode, boolean isNew) {
+        if (isNew) {
+            viewModel.createFocusMode(mode);
+        } else {
+            viewModel.updateFocusMode(mode);
+        }
     }
 
     private void onActivateClick(FocusMode focusMode) {

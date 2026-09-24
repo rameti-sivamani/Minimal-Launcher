@@ -73,6 +73,13 @@
             android:label="@string/settings"
             android:theme="@style/Theme.MinimalistLauncher" />
 
+        <!-- Screen time report -->
+        <activity
+            android:name=".ui.usage.UsageActivity"
+            android:exported="false"
+            android:label="@string/usage_report"
+            android:theme="@style/Theme.MinimalistLauncher" />
+
         <!-- Focus Mode Activity -->
         <activity
             android:name=".ui.focus.FocusModeActivity"
