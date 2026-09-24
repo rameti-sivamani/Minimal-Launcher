@@ -9,7 +9,8 @@ A minimalist Android home launcher application designed to help users reduce pho
 - Large time and date display (follows the system 12/24-hour setting)
 - Today's screen time, calculated on-device from Android usage access
 - Up to 4 favorite apps, reorderable (long-press a favorite)
-- Gestures: swipe right/up or tap the clock for all apps, swipe left for the camera
+- Gestures: swipe up or right (or tap the clock) for all apps, swipe left for the camera.
+  Start horizontal swipes a little away from the screen edge; the edges belong to Android's Back gesture.
 - No widgets, no notifications preview
 - Monochrome/grayscale color scheme
 
@@ -22,7 +23,9 @@ A minimalist Android home launcher application designed to help users reduce pho
 - Support for showing/hiding app icons
 
 ### 📊 Usage Awareness
-- Daily screen time tracking
+- Daily screen time tracking, with a Usage Report (today by app + last 7 days); tap the screen time on the home screen
+- Daily time limits per app (long-press an app › Daily time limit); opening an app past its limit asks you to take a break
+- The app list shows today's time, limit and launches next to each app
 - App launch frequency monitoring
 - Configurable launch limit warnings
 - Visual reminders for frequently-used apps
@@ -30,7 +33,7 @@ A minimalist Android home launcher application designed to help users reduce pho
 ### 🎯 Focus Modes
 - "Deep Work" mode with essential apps only (calls, messages, calendar)
 - Create and edit custom focus modes with an app picker (Settings › Focus Modes)
-- Activate/deactivate focus modes on demand
+- Activate/deactivate focus modes on demand, or schedule them (e.g. 09:00–17:00, Mon–Fri; overnight ranges work too)
 - Focus mode indicator on home screen
 
 ## Technical Details
@@ -113,7 +116,7 @@ On first launch a short onboarding explains and requests:
 
 ### Settings
 - **Appearance:** theme (OLED black, dark gray, light, auto), font size, app icons, day of week, quick info
-- **Usage awareness:** screen time, usage access, launch warnings and their threshold, focus modes
+- **Usage awareness:** screen time, usage report, usage access, app time limits, launch warnings and their threshold, focus modes
 - **Apps:** sort order, hidden apps, reset favorites
 - **System:** set as default launcher, privacy policy, version
 
@@ -153,12 +156,13 @@ Edit `res/values/colors.xml` to customize the grayscale palette
 - Usage access must be granted by the user in system settings (Android requirement)
 - Some system launchers may interfere with launcher selection
 - Screen time tracking requires Android 10+ (API 29)
-- Focus mode scheduling is not yet implemented
+- Time limits are checked when an app is opened from the launcher, not while it is already open
 
 ## Future Enhancements
 
-- [ ] Scheduled focus modes (auto-activate during specific hours)
-- [ ] Weekly/monthly usage statistics
+- [x] Scheduled focus modes (auto-activate during specific hours)
+- [x] Weekly usage statistics
+- [x] Per-app daily time limits
 - [ ] App blocking (completely hide apps during focus mode)
 - [ ] Type-to-launch friction mode
 - [ ] Export usage data

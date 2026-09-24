@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -30,15 +29,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.R;
+import com.minimalist.launcher.data.database.entities.FocusMode;
 import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
 import com.minimalist.launcher.ui.applist.AppListActivity;
 import com.minimalist.launcher.ui.settings.SettingsActivity;
+import com.minimalist.launcher.ui.usage.UsageActivity;
+import com.minimalist.launcher.utils.AppFilterHelper;
+import com.minimalist.launcher.utils.FontScale;
 import com.minimalist.launcher.utils.LaunchGate;
 import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
+import com.minimalist.launcher.utils.SwipeDetector;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.Transitions;
+
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * Main launcher activity - the home screen.
@@ -61,13 +69,15 @@ public class LauncherActivity extends AppCompatActivity {
     private View quickInfoContainer;
     private RecyclerView favoritesRecyclerView;
     private FavoriteAppsAdapter favoritesAdapter;
-    private GestureDetector gestureDetector;
+    private SwipeDetector swipeDetector;
+    private List<FocusMode> focusModes;
 
     private final Handler clockHandler = new Handler(Looper.getMainLooper());
     private final Runnable clockTick = new Runnable() {
         @Override
         public void run() {
             viewModel.updateTimeAndDate();
+            updateFocusIndicator();
             clockHandler.postDelayed(this, CLOCK_TICK_MS);
         }
     };
@@ -102,9 +112,11 @@ public class LauncherActivity extends AppCompatActivity {
         setupGestures();
 
         findViewById(R.id.settings_button).setOnClickListener(v -> openSettings());
-        timeText.setOnClickListener(v -> openAppList());
+        timeText.setOnClickListener(v -> openAppList(Transitions.Slide.FROM_BOTTOM));
         screenTimeText.setOnClickListener(v -> {
-            if (!PermissionHelper.hasUsageStatsPermission(this)) {
+            if (PermissionHelper.hasUsageStatsPermission(this)) {
+                startActivity(new Intent(this, UsageActivity.class));
+            } else {
                 showUsageAccessDisclosure(null);
             }
         });
@@ -209,14 +221,25 @@ public class LauncherActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.getActiveFocusMode().observe(this, focusMode -> {
-            if (focusMode != null && focusMode.isActive()) {
-                focusModeText.setText(getString(R.string.focus_mode_active, focusMode.getName()));
-                focusModeText.setVisibility(View.VISIBLE);
-            } else {
-                focusModeText.setVisibility(View.GONE);
-            }
+        viewModel.getAllFocusModes().observe(this, modes -> {
+            focusModes = modes;
+            updateFocusIndicator();
         });
+    }
+
+    /**
+     * Show the focus mode in effect now (manual or scheduled). Re-run on every clock tick
+     * so scheduled modes appear and disappear on time.
+     */
+    private void updateFocusIndicator() {
+        FocusMode focusMode = AppFilterHelper.resolveActive(focusModes, Calendar.getInstance());
+        if (focusMode == null) {
+            focusModeText.setVisibility(View.GONE);
+            return;
+        }
+        focusModeText.setText(getString(focusMode.isActive()
+                ? R.string.focus_mode_active : R.string.focus_mode_scheduled, focusMode.getName()));
+        focusModeText.setVisibility(View.VISIBLE);
     }
 
     private void updateScreenTimeVisibility() {
@@ -233,37 +256,19 @@ public class LauncherActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
 
     private void setupGestures() {
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            private static final int SWIPE_THRESHOLD = 100;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2,
-                    float velocityX, float velocityY) {
-                if (e1 == null) {
+        swipeDetector = new SwipeDetector(this, direction -> {
+            switch (direction) {
+                case UP:
+                    openAppList(Transitions.Slide.FROM_BOTTOM);
+                    return true;
+                case RIGHT:
+                    openAppList(Transitions.Slide.FROM_LEFT);
+                    return true;
+                case LEFT:
+                    openCamera();
+                    return true;
+                default:
                     return false;
-                }
-                float diffX = e2.getX() - e1.getX();
-                float diffY = e2.getY() - e1.getY();
-
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) < SWIPE_THRESHOLD || Math.abs(velocityX) < SWIPE_VELOCITY_THRESHOLD) {
-                        return false;
-                    }
-                    if (diffX > 0) {
-                        openAppList();
-                    } else {
-                        openCamera();
-                    }
-                    return true;
-                }
-
-                // Swipe up opens the app list
-                if (diffY < -SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                    openAppList();
-                    return true;
-                }
-                return false;
             }
         });
     }
@@ -273,14 +278,14 @@ public class LauncherActivity extends AppCompatActivity {
      */
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (gestureDetector != null && gestureDetector.onTouchEvent(ev)) {
+        if (swipeDetector != null && swipeDetector.onTouchEvent(ev)) {
             return true;
         }
         return super.dispatchTouchEvent(ev);
     }
 
-    private void openAppList() {
-        startActivity(new Intent(this, AppListActivity.class));
+    private void openAppList(Transitions.Slide slide) {
+        Transitions.start(this, new Intent(this, AppListActivity.class), slide);
     }
 
     private void openSettings() {
@@ -377,31 +382,16 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     private void applyFontSize() {
-        float timeSize;
-        float dateSize;
-        float favoriteSize;
-        switch (Prefs.fontSize(this)) {
-            case 0: // Small
-                timeSize = 56f;
-                dateSize = 14f;
-                favoriteSize = 16f;
-                break;
-            case 2: // Large
-                timeSize = 72f;
-                dateSize = 18f;
-                favoriteSize = 22f;
-                break;
-            default: // Medium
-                timeSize = 64f;
-                dateSize = 16f;
-                favoriteSize = 18f;
-                break;
-        }
-        timeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, timeSize);
-        dateText.setTextSize(TypedValue.COMPLEX_UNIT_SP, dateSize);
+        timeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, FontScale.clock(this));
+        dateText.setTextSize(TypedValue.COMPLEX_UNIT_SP, FontScale.date(this));
+        float secondary = FontScale.secondary(this);
+        screenTimeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, secondary);
+        focusModeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, secondary);
+        batteryText.setTextSize(TypedValue.COMPLEX_UNIT_SP, secondary);
+        networkText.setTextSize(TypedValue.COMPLEX_UNIT_SP, secondary);
 
         ThemeManager themeManager = new ThemeManager(this);
-        favoritesAdapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(), favoriteSize);
+        favoritesAdapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(), FontScale.appName(this));
     }
 
     // ---------------------------------------------------------------------

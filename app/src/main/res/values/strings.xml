@@ -102,19 +102,10 @@
 
     <!-- Onboarding and permissions -->
     <string name="welcome_title">Welcome to Minimalist Launcher</string>
-    <string name="welcome_message">A calmer home screen that helps you use your phone with intention.
-
-Next we'll ask for two optional things:
-
-1. Usage access, to show your screen time
-2. Setting this as your home app</string>
+    <string name="welcome_message">A calmer home screen that helps you use your phone with intention.\n\nNext we\'ll ask for two optional things:\n\n1. Usage access, to show your screen time\n2. Setting this as your home app</string>
     <string name="get_started">Get started</string>
     <string name="usage_access_title">Usage Access</string>
-    <string name="usage_access_disclosure">Minimalist Launcher uses Android's usage access to calculate how long you have used your apps today and show it on your home screen.
-
-This data is processed only on your device. It is never uploaded, shared or sold.
-
-On the next screen, find Minimalist Launcher and turn on "Permit usage access". You can turn it off at any time.</string>
+    <string name="usage_access_disclosure">Minimalist Launcher uses Android\'s usage access to calculate how long you have used your apps today and show it on your home screen.\n\nThis data is processed only on your device. It is never uploaded, shared or sold.\n\nOn the next screen, find Minimalist Launcher and turn on \"Permit usage access\". You can turn it off at any time.</string>
     <string name="usage_access_revoke_info">Usage access is on. Screen time is calculated only on your device. You can turn it off in system settings at any time.</string>
     <string name="not_now">Not now</string>
     <string name="open_settings">Open Settings</string>
@@ -129,11 +120,9 @@ On the next screen, find Minimalist Launcher and turn on "Permit usage access". 
     <string name="removed_from_favorites">Removed from favorites</string>
     <string name="favorites_full_title">Favorites Full</string>
     <string name="favorites_full_message">You can only have %1$d favorite apps. Remove one first.</string>
-    <string name="system_app_message">%1$s is a system app and can't be uninstalled. You can disable it from App Info.</string>
+    <string name="system_app_message">%1$s is a system app and can\'t be uninstalled. You can disable it from App Info.</string>
     <string name="hide">Hide</string>
-    <string name="hide_app_message">Hide %1$s from the launcher?
-
-You can unhide it from Settings.</string>
+    <string name="hide_app_message">Hide %1$s from the launcher?\n\nYou can unhide it from Settings.</string>
     <string name="app_hidden">%1$s hidden</string>
 
     <!-- Settings (v1.0) -->
@@ -179,6 +168,7 @@ You can unhide it from Settings.</string>
         <item>Small</item>
         <item>Medium</item>
         <item>Large</item>
+        <item>Extra large</item>
     </string-array>
 
     <string-array name="sort_orders">
@@ -194,4 +184,64 @@ You can unhide it from Settings.</string>
     <string name="focus_mode_needs_apps">Pick at least one app, otherwise the app list would be empty</string>
     <string name="allowed_apps_for">Allowed apps: %1$s</string>
     <string name="delete_focus_mode_confirm">Delete %1$s?</string>
+
+    <!-- Phase 2: focus schedules -->
+    <string name="focus_mode_scheduled">%1$s (Scheduled)</string>
+    <string name="active_by_schedule">On by schedule</string>
+    <string name="status_with_schedule">%1$s · %2$s</string>
+    <string name="schedule_title">Schedule</string>
+    <string name="schedule_none">No schedule (turn on manually)</string>
+    <string name="schedule_set">Turn on automatically at set times</string>
+    <string name="schedule_start">Start time</string>
+    <string name="schedule_end">End time</string>
+    <string name="schedule_days">Days</string>
+    <string name="schedule_same_times">Start and end time must be different</string>
+    <string name="schedule_needs_days">Pick at least one day</string>
+    <string-array name="weekdays">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string-array name="weekdays_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
+    <!-- Phase 2: app time limits -->
+    <string name="daily_time_limit">Daily time limit</string>
+    <string name="daily_time_limit_for">Daily limit: %1$s</string>
+    <string name="no_limit">No limit</string>
+    <string name="limit_needs_usage_access">Time limits need usage access. Turn it on in Settings › Usage Access.</string>
+    <string name="limit_reached_title">Daily limit reached</string>
+    <string name="limit_reached_message">You\'ve used this app for %1$s today. Your limit is %2$s.\n\nTake a break?</string>
+    <string name="open_anyway_once">Open anyway</string>
+    <string name="app_time_limits">App Time Limits</string>
+    <string name="app_limits_none">Long-press an app in the list to set one</string>
+    <plurals name="apps_limited">
+        <item quantity="one">%1$d app limited</item>
+        <item quantity="other">%1$d apps limited</item>
+    </plurals>
+    <string name="remove_limits">Remove limits</string>
+    <string name="remove_selected">Remove Selected</string>
+
+    <!-- Phase 2: usage report -->
+    <string name="usage_report">Usage Report</string>
+    <string name="usage_report_summary">Today and the last 7 days</string>
+    <string name="usage_today_caption">Screen time today</string>
+    <string name="usage_last_7_days">Last 7 days</string>
+    <string name="usage_today_by_app">Today by app</string>
+    <string name="usage_daily_average">Daily average: %1$s</string>
+    <string name="usage_no_apps_yet">No app used for more than a minute yet today</string>
+    <string name="usage_of_limit">%1$s / %2$s</string>
+    <string name="usage_report_needs_access">Turn on usage access to see how much time you spend in each app. The data stays on this device.</string>
+    <string name="today">Today</string>
 </resources>

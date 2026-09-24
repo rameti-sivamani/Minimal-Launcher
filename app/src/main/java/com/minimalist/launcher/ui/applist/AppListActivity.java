@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.GestureDetector;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,11 +25,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.model.AppInfo;
+import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.FavoritesHelper;
+import com.minimalist.launcher.utils.FontScale;
 import com.minimalist.launcher.utils.LaunchGate;
+import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
+import com.minimalist.launcher.utils.SwipeDetector;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.Transitions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +52,8 @@ public class AppListActivity extends AppCompatActivity {
     private SearchView searchView;
     private TextView emptyStateText;
     private FavoritesHelper favoritesHelper;
-    private GestureDetector gestureDetector;
+    private SwipeDetector swipeDetector;
+    private AppLimitsManager limitsManager;
     private BroadcastReceiver packageChangeReceiver;
 
     @Override
@@ -56,6 +63,7 @@ public class AppListActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(AppListViewModel.class);
         favoritesHelper = new FavoritesHelper(this);
+        limitsManager = new AppLimitsManager(this);
 
         recyclerView = findViewById(R.id.apps_recycler_view);
         searchView = findViewById(R.id.search_view);
@@ -100,9 +108,13 @@ public class AppListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         applyTheme();
-        adapter.setAppearance(Prefs.showIcons(this),
-                new ThemeManager(this).getTextColor(),
-                new ThemeManager(this).getSecondaryTextColor());
+        ThemeManager themeManager = new ThemeManager(this);
+        adapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(),
+                themeManager.getSecondaryTextColor(), FontScale.appName(this), FontScale.secondary(this));
+        TextView searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        if (searchText != null) {
+            searchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, FontScale.appName(this));
+        }
         viewModel.loadApps();
     }
 
@@ -141,6 +153,8 @@ public class AppListActivity extends AppCompatActivity {
             labels.add(getString(R.string.add_to_favorites));
             actions.add(() -> addToFavorites(app));
         }
+        labels.add(getString(R.string.daily_time_limit));
+        actions.add(() -> showLimitDialog(app));
         labels.add(getString(R.string.app_info));
         actions.add(() -> openAppInfo(app));
         labels.add(getString(R.string.uninstall));
@@ -152,6 +166,32 @@ public class AppListActivity extends AppCompatActivity {
                 .setTitle(app.getAppName())
                 .setItems(labels.toArray(new String[0]), (dialog, which) -> actions.get(which).run())
                 .show();
+    }
+
+    private void showLimitDialog(AppInfo app) {
+        int[] options = AppLimitsManager.LIMIT_OPTIONS_MINUTES;
+        String[] labels = new String[options.length];
+        int current = limitsManager.getLimitMinutes(app.getPackageName());
+        int checked = 0;
+        for (int i = 0; i < options.length; i++) {
+            labels[i] = options[i] == 0 ? getString(R.string.no_limit)
+                    : ScreenTimeCalculator.format(options[i] * 60_000L);
+            if (options[i] == current) {
+                checked = i;
+            }
+        }
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.daily_time_limit_for, app.getAppName()))
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    limitsManager.setLimitMinutes(app.getPackageName(), options[which]);
+                    viewModel.loadApps();
+                    dialog.dismiss();
+                    if (options[which] > 0 && !PermissionHelper.hasUsageStatsPermission(this)) {
+                        Toast.makeText(this, R.string.limit_needs_usage_access, Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null);
+        builder.show();
     }
 
     private void addToFavorites(AppInfo app) {
@@ -231,31 +271,23 @@ public class AppListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeGesture() {
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            private static final int SWIPE_THRESHOLD = 100;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) {
-                    return false;
-                }
-                float diffX = e2.getX() - e1.getX();
-                float diffY = e2.getY() - e1.getY();
-                if (Math.abs(diffX) > Math.abs(diffY)
-                        && diffX < -SWIPE_THRESHOLD
-                        && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    finish();
-                    return true;
-                }
-                return false;
+        swipeDetector = new SwipeDetector(this, direction -> {
+            // Close with the gesture that mirrors how the list was opened
+            if (direction == SwipeDetector.Direction.LEFT) {
+                Transitions.finish(this, Transitions.Slide.FROM_LEFT);
+                return true;
             }
+            if (direction == SwipeDetector.Direction.DOWN && !recyclerView.canScrollVertically(-1)) {
+                Transitions.finish(this, Transitions.Slide.FROM_BOTTOM);
+                return true;
+            }
+            return false;
         });
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (gestureDetector != null && gestureDetector.onTouchEvent(ev)) {
+        if (swipeDetector != null && swipeDetector.onTouchEvent(ev)) {
             return true;
         }
         return super.dispatchTouchEvent(ev);

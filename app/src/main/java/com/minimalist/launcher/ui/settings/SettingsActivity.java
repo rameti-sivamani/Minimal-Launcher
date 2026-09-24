@@ -21,7 +21,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.BuildConfig;
 import com.minimalist.launcher.R;
+import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
 import com.minimalist.launcher.ui.focus.FocusModeActivity;
+import com.minimalist.launcher.ui.usage.UsageActivity;
+import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.FavoritesHelper;
 import com.minimalist.launcher.utils.HiddenAppsManager;
 import com.minimalist.launcher.utils.PermissionHelper;
@@ -43,6 +46,7 @@ public class SettingsActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private ThemeManager themeManager;
     private HiddenAppsManager hiddenAppsManager;
+    private AppLimitsManager limitsManager;
     private ActivityResultLauncher<Intent> defaultLauncherRequest;
 
     @Override
@@ -53,6 +57,7 @@ public class SettingsActivity extends AppCompatActivity {
         prefs = Prefs.get(this);
         themeManager = new ThemeManager(this);
         hiddenAppsManager = new HiddenAppsManager(this);
+        limitsManager = new AppLimitsManager(this);
         defaultLauncherRequest = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), result -> refreshSummaries());
 
@@ -82,7 +87,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Usage awareness
         onClick(R.id.show_screen_time_setting, () -> toggle(Prefs.KEY_SHOW_SCREEN_TIME, true));
+        onClick(R.id.usage_report_setting,
+                () -> startActivity(new Intent(this, UsageActivity.class)));
         onClick(R.id.usage_access_setting, this::showUsageAccessDialog);
+        onClick(R.id.app_limits_setting, this::showAppLimitsDialog);
         onClick(R.id.warnings_setting, () -> toggle(Prefs.KEY_WARNINGS_ENABLED, true));
         onClick(R.id.threshold_setting, this::showThresholdDialog);
         onClick(R.id.focus_modes_setting,
@@ -127,6 +135,10 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.threshold_setting).setEnabled(Prefs.warningsEnabled(this));
         findViewById(R.id.threshold_setting).setAlpha(Prefs.warningsEnabled(this) ? 1f : 0.5f);
         setSummary(R.id.focus_modes_summary, getString(R.string.focus_modes_summary));
+        setSummary(R.id.usage_report_summary, getString(R.string.usage_report_summary));
+        int limited = limitsManager.getLimitedAppCount();
+        setSummary(R.id.app_limits_summary, limited == 0 ? getString(R.string.app_limits_none)
+                : getResources().getQuantityString(R.plurals.apps_limited, limited, limited));
 
         setSummary(R.id.app_sorting_summary, getResources().getStringArray(R.array.sort_orders)[Prefs.sortOrder(this)]);
         int hidden = hiddenAppsManager.getHiddenCount();
@@ -245,6 +257,50 @@ public class SettingsActivity extends AppCompatActivity {
                     for (int i = 0; i < checked.length; i++) {
                         if (checked[i]) {
                             hiddenAppsManager.unhideApp(packageNames.get(i));
+                        }
+                    }
+                    refreshSummaries();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showAppLimitsDialog() {
+        PackageManager pm = getPackageManager();
+        final List<String> labels = new ArrayList<>();
+        final List<String> packages = new ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> entry : limitsManager.getAllLimits().entrySet()) {
+            String label = entry.getKey();
+            try {
+                label = pm.getApplicationLabel(pm.getApplicationInfo(entry.getKey(), 0)).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                // Uninstalled: drop its limit
+                limitsManager.setLimitMinutes(entry.getKey(), 0);
+                continue;
+            }
+            labels.add(label + " — " + ScreenTimeCalculator.format(entry.getValue() * 60_000L));
+            packages.add(entry.getKey());
+        }
+
+        if (labels.isEmpty()) {
+            refreshSummaries();
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.app_time_limits)
+                    .setMessage(R.string.app_limits_none)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+
+        boolean[] checked = new boolean[labels.size()];
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.remove_limits)
+                .setMultiChoiceItems(labels.toArray(new String[0]), checked,
+                        (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton(R.string.remove_selected, (dialog, which) -> {
+                    for (int i = 0; i < checked.length; i++) {
+                        if (checked[i]) {
+                            limitsManager.setLimitMinutes(packages.get(i), 0);
                         }
                     }
                     refreshSummaries();

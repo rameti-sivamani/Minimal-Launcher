@@ -7,8 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.WorkerThread;
@@ -28,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 /**
  * Repository for installed applications and their daily launch counters
@@ -43,7 +40,6 @@ public class AppRepository {
     private final Context context;
     private final PackageManager packageManager;
     private final AppLaunchCounterDao launchCounterDao;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public AppRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -163,14 +159,12 @@ public class AppRepository {
     }
 
     /**
-     * Look up today's launch count off the main thread and deliver it on the main thread
+     * Today's launch count for one app
      */
-    public void getTodayLaunchCount(String packageName, Consumer<Integer> callback) {
-        EXECUTOR.execute(() -> {
-            AppLaunchCounter counter = launchCounterDao.getCounter(packageName, getTodayDate());
-            int count = counter != null ? counter.getLaunchCount() : 0;
-            mainHandler.post(() -> callback.accept(count));
-        });
+    @WorkerThread
+    public int getTodayLaunchCountSync(String packageName) {
+        AppLaunchCounter counter = launchCounterDao.getCounter(packageName, getTodayDate());
+        return counter != null ? counter.getLaunchCount() : 0;
     }
 
     /**

@@ -47,7 +47,7 @@ public class LauncherViewModel extends AndroidViewModel {
     private final MutableLiveData<String> currentDate = new MutableLiveData<>();
     private final MutableLiveData<Long> screenTimeMillis = new MutableLiveData<>();
     private final MutableLiveData<List<AppInfo>> favorites = new MutableLiveData<>(new ArrayList<>());
-    private final LiveData<FocusMode> activeFocusMode;
+    private final LiveData<List<FocusMode>> allFocusModes;
 
     public LauncherViewModel(@NonNull Application application) {
         super(application);
@@ -55,7 +55,7 @@ public class LauncherViewModel extends AndroidViewModel {
         this.usageRepository = new UsageRepository(application);
         this.appRepository = new AppRepository(application);
         this.favoritesHelper = new FavoritesHelper(application);
-        this.activeFocusMode = AppDatabase.getInstance(application).focusModeDao().getActiveFocusMode();
+        this.allFocusModes = AppDatabase.getInstance(application).focusModeDao().getAllFocusModes();
 
         updateTimeAndDate();
     }
@@ -145,8 +145,8 @@ public class LauncherViewModel extends AndroidViewModel {
         return favorites;
     }
 
-    public LiveData<FocusMode> getActiveFocusMode() {
-        return activeFocusMode;
+    public LiveData<List<FocusMode>> getAllFocusModes() {
+        return allFocusModes;
     }
 
     @Override

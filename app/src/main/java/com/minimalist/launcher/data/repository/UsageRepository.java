@@ -60,12 +60,44 @@ public class UsageRepository {
      */
     @WorkerThread
     public Map<String, Long> getTodayUsagePerApp() {
+        return getUsagePerApp(startOfDay(0), System.currentTimeMillis());
+    }
+
+    /**
+     * Total screen time for each of the last {@code days} days, oldest first
+     * (the last entry is today so far). Null without usage access.
+     */
+    @WorkerThread
+    public long[] getDailyTotals(int days) {
+        if (!PermissionHelper.hasUsageStatsPermission(context)) {
+            return null;
+        }
+        long[] totals = new long[days];
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < days; i++) {
+            int daysAgo = days - 1 - i;
+            long start = startOfDay(daysAgo);
+            long end = daysAgo == 0 ? now : startOfDay(daysAgo - 1);
+            Map<String, Long> perApp = getUsagePerApp(start, end);
+            long sum = 0;
+            if (perApp != null) {
+                for (long value : perApp.values()) {
+                    sum += value;
+                }
+            }
+            totals[i] = sum;
+        }
+        return totals;
+    }
+
+    /**
+     * Foreground time per package in [start, end), or null without usage access
+     */
+    @WorkerThread
+    public Map<String, Long> getUsagePerApp(long start, long end) {
         if (usageStatsManager == null || !PermissionHelper.hasUsageStatsPermission(context)) {
             return null;
         }
-
-        long start = startOfToday();
-        long end = System.currentTimeMillis();
 
         List<ScreenTimeCalculator.Event> events = new ArrayList<>();
         UsageEvents usageEvents = usageStatsManager.queryEvents(start, end);
@@ -96,12 +128,16 @@ public class UsageRepository {
         appUsageDao.deleteOldRecords(sdf.format(new Date(thirtyDaysAgo)));
     }
 
-    private static long startOfToday() {
+    /**
+     * Local midnight {@code daysAgo} days before today (0 = today, -1 = tomorrow)
+     */
+    public static long startOfDay(int daysAgo) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.DAY_OF_YEAR, -daysAgo);
         return calendar.getTimeInMillis();
     }
 }
