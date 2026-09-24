@@ -6,14 +6,17 @@ A minimalist Android home launcher application designed to help users reduce pho
 
 ### 🏠 Minimal Home Screen
 - Clean, distraction-free interface
-- Large time and date display
-- Daily screen time summary
+- Large time and date display (follows the system 12/24-hour setting)
+- Today's screen time, calculated on-device from Android usage access
+- Up to 4 favorite apps, reorderable (long-press a favorite)
+- Gestures: swipe right/up or tap the clock for all apps, swipe left for the camera
 - No widgets, no notifications preview
 - Monochrome/grayscale color scheme
 
 ### 📱 Intentional App Access
 - Text-based alphabetical app list
-- Real-time search functionality
+- Real-time search; press Enter to open the top result
+- Sort alphabetically, by most used today, or by recently installed
 - Launch counter for each app (daily usage count)
 - Optional "Do you really need this?" confirmation dialogs
 - Support for showing/hiding app icons
@@ -26,7 +29,7 @@ A minimalist Android home launcher application designed to help users reduce pho
 
 ### 🎯 Focus Modes
 - "Deep Work" mode with essential apps only (calls, messages, calendar)
-- Create custom focus modes with app allowlists
+- Create and edit custom focus modes with an app picker (Settings › Focus Modes)
 - Activate/deactivate focus modes on demand
 - Focus mode indicator on home screen
 
@@ -34,10 +37,10 @@ A minimalist Android home launcher application designed to help users reduce pho
 
 - **Language:** Java
 - **Minimum SDK:** Android 10 (API 29)
-- **Target SDK:** Android 14 (API 34)
+- **Target SDK:** Android 16 (API 36)
 - **Architecture:** MVVM (Model-View-ViewModel)
 - **Database:** Room Persistence Library
-- **Async Operations:** RxJava3
+- **Async Operations:** single-thread executors + LiveData
 - **Background Tasks:** WorkManager
 
 ## Project Structure
@@ -65,11 +68,14 @@ app/src/main/java/com/minimalist/launcher/
 
 ### 1. Build the Project
 
-Open the project in Android Studio and sync Gradle files. Build the APK:
+Open the project in Android Studio and sync Gradle files, or use the wrapper (JDK 17+):
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleDebug        # debug build (installs alongside release as .debug)
+./gradlew testDebugUnitTest    # unit tests
 ```
+
+For a Play Store release build, see [PLAY_STORE_RELEASE.md](PLAY_STORE_RELEASE.md).
 
 ### 2. Install on Device
 
@@ -81,12 +87,10 @@ Or use Android Studio's "Run" button.
 
 ### 3. Grant Permissions
 
-After installation:
+On first launch a short onboarding explains and requests:
 
-1. Open the launcher app
-2. Tap the settings icon (top right)
-3. Grant **Usage Stats Permission** (required for screen time tracking)
-4. Set as **Default Launcher** (makes this your home screen)
+1. **Usage access** (optional): only for on-device screen time. Can be changed later in Settings › Usage Access.
+2. **Default home app**: uses the system "default home app" dialog.
 
 ### 4. Set as Default Launcher
 
@@ -97,8 +101,9 @@ After installation:
 ## Usage
 
 ### Home Screen
-- Tap anywhere on the screen to view your app list
+- Swipe right or up (or tap the clock) to view your app list; swipe left for the camera
 - Screen time and focus mode status are displayed centrally
+- Long-press a favorite to reorder or remove it
 - Tap the settings icon to access configuration
 
 ### App List
@@ -107,9 +112,10 @@ After installation:
 - If warnings are enabled, you'll see a confirmation dialog for apps opened more than 10 times per day (configurable)
 
 ### Settings
-- **Show App Icons:** Toggle between text-only and icon+text display
-- **Enable Launch Warnings:** Turn friction dialogs on/off
-- **Focus Modes:** Manage custom focus modes
+- **Appearance:** theme (OLED black, dark gray, light, auto), font size, app icons, day of week, quick info
+- **Usage awareness:** screen time, usage access, launch warnings and their threshold, focus modes
+- **Apps:** sort order, hidden apps, reset favorites
+- **System:** set as default launcher, privacy policy, version
 
 ### Focus Modes
 - Create a "Deep Work" mode with one tap (essential apps only)
@@ -134,7 +140,7 @@ After installation:
 ## Customization
 
 ### Change Warning Threshold
-Edit `SharedPreferences` key `"warning_threshold"` (default: 10 launches)
+Settings › Launch Warning Threshold (default: 10 launches a day)
 
 ### Modify Deep Work Allowlist
 See `AppFilterHelper.getDeepWorkAllowlist()` to add/remove essential apps
@@ -144,7 +150,7 @@ Edit `res/values/colors.xml` to customize the grayscale palette
 
 ## Known Limitations
 
-- Usage stats permission must be manually granted in system settings
+- Usage access must be granted by the user in system settings (Android requirement)
 - Some system launchers may interfere with launcher selection
 - Screen time tracking requires Android 10+ (API 29)
 - Focus mode scheduling is not yet implemented
@@ -157,6 +163,10 @@ Edit `res/values/colors.xml` to customize the grayscale palette
 - [ ] Type-to-launch friction mode
 - [ ] Export usage data
 - [ ] Widget support for quick focus mode toggle
+
+## Privacy
+
+All data stays on the device; the app has no internet permission. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ## License
 
