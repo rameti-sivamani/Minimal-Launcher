@@ -196,4 +196,52 @@
     <style name="Widget.MinimalistLauncher.ListItem.TwoLine">
         <item name="android:minHeight">@dimen/list_item_height_two_line</item>
     </style>
+
+    <!-- ========================================= -->
+    <!-- Settings Screen                           -->
+    <!-- ========================================= -->
+
+    <style name="SettingsHeader">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/spacing_tiny</item>
+        <item name="android:paddingStart">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/list_item_padding_horizontal</item>
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:accessibilityHeading">true</item>
+        <item name="android:tag">header</item>
+    </style>
+
+    <style name="SettingsRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/list_item_height_two_line</item>
+        <item name="android:paddingStart">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/list_item_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/list_item_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="SettingsRowTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_body</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:tag">title</item>
+    </style>
+
+    <style name="SettingsRowSummary">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/spacing_micro</item>
+        <item name="android:textSize">@dimen/text_size_secondary</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:tag">summary</item>
+    </style>
 </resources>

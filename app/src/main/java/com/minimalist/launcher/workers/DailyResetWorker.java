@@ -1,6 +1,7 @@
 package com.minimalist.launcher.workers;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -10,29 +11,24 @@ import com.minimalist.launcher.data.repository.AppRepository;
 import com.minimalist.launcher.data.repository.UsageRepository;
 
 /**
- * Worker that runs daily at midnight to reset counters and clean old data
+ * Worker that runs daily at midnight to reset counters and clean old data.
+ * Work runs synchronously so it finishes before WorkManager marks it done.
  */
 public class DailyResetWorker extends Worker {
-    
+
     public DailyResetWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
-    
+
     @NonNull
     @Override
     public Result doWork() {
         try {
-            // Reset launch counters
-            AppRepository appRepository = new AppRepository(getApplicationContext());
-            appRepository.resetDailyCounters();
-            
-            // Clean up old usage data (older than 30 days)
-            UsageRepository usageRepository = new UsageRepository(getApplicationContext());
-            usageRepository.cleanupOldData();
-            
+            new AppRepository(getApplicationContext()).resetDailyCountersSync();
+            new UsageRepository(getApplicationContext()).cleanupOldDataSync();
             return Result.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("DailyResetWorker", "Daily reset failed", e);
             return Result.retry();
         }
     }

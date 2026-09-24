@@ -17,7 +17,7 @@ import com.minimalist.launcher.data.database.entities.FocusMode;
  * Room database for the Minimalist Launcher
  * Stores app usage data, launch counters, and focus mode configurations
  */
-@Database(entities = { AppUsage.class, AppLaunchCounter.class, FocusMode.class }, version = 1, exportSchema = false)
+@Database(entities = { AppUsage.class, AppLaunchCounter.class, FocusMode.class }, version = 1, exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase INSTANCE;
@@ -40,7 +40,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "minimalist_launcher_db")
-                            .fallbackToDestructiveMigration()
+                            // Bumping the version requires a Migration so users keep their data
                             .build();
                 }
             }

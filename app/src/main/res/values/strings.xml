@@ -85,4 +85,113 @@
     <string name="show_day_of_week">Show Day of Week</string>
     <string name="time_format">Time Format</string>
     <string name="date_format">Date Format</string>
+
+    <!-- Home Screen (v1.0) -->
+    <string name="screen_time_today">Screen time today: %1$s</string>
+    <string name="screen_time_tap_to_enable">Tap to enable screen time</string>
+    <string name="focus_mode_active">%1$s (Active)</string>
+    <string name="battery_level">🔋 %1$d%%</string>
+    <string name="battery_unknown">🔋 --</string>
+    <string name="network_wifi">📶 Wi-Fi</string>
+    <string name="network_mobile">📶 Mobile</string>
+    <string name="network_connected">📶 Connected</string>
+    <string name="network_none">📶 No network</string>
+    <string name="no_camera_app">No camera app found</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
+
+    <!-- Onboarding and permissions -->
+    <string name="welcome_title">Welcome to Minimalist Launcher</string>
+    <string name="welcome_message">A calmer home screen that helps you use your phone with intention.
+
+Next we'll ask for two optional things:
+
+1. Usage access, to show your screen time
+2. Setting this as your home app</string>
+    <string name="get_started">Get started</string>
+    <string name="usage_access_title">Usage Access</string>
+    <string name="usage_access_disclosure">Minimalist Launcher uses Android's usage access to calculate how long you have used your apps today and show it on your home screen.
+
+This data is processed only on your device. It is never uploaded, shared or sold.
+
+On the next screen, find Minimalist Launcher and turn on "Permit usage access". You can turn it off at any time.</string>
+    <string name="usage_access_revoke_info">Usage access is on. Screen time is calculated only on your device. You can turn it off in system settings at any time.</string>
+    <string name="not_now">Not now</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="permission_not_granted">Not granted</string>
+    <string name="set_default_manually">Set the default home app in Settings › Apps › Default apps</string>
+
+    <!-- App List (v1.0) -->
+    <string name="unable_to_open_app">Unable to open this app</string>
+    <string name="unable_to_open_app_info">Unable to open app info</string>
+    <string name="unable_to_uninstall">Unable to uninstall this app</string>
+    <string name="added_to_favorites">%1$s added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="favorites_full_title">Favorites Full</string>
+    <string name="favorites_full_message">You can only have %1$d favorite apps. Remove one first.</string>
+    <string name="system_app_message">%1$s is a system app and can't be uninstalled. You can disable it from App Info.</string>
+    <string name="hide">Hide</string>
+    <string name="hide_app_message">Hide %1$s from the launcher?
+
+You can unhide it from Settings.</string>
+    <string name="app_hidden">%1$s hidden</string>
+
+    <!-- Settings (v1.0) -->
+    <string name="navigate_up">Navigate up</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="quick_info">Quick Info (battery and network)</string>
+    <string name="show_screen_time">Show Screen Time</string>
+    <string name="launch_warning_threshold_summary">After %1$d launches a day</string>
+    <string name="focus_modes_summary">Limit the app list to what you need</string>
+    <string name="apps">Apps</string>
+    <string name="app_sorting">App Sorting</string>
+    <string name="reset_favorites">Reset Favorites</string>
+    <string name="reset_favorites_summary">Remove all favorite apps</string>
+    <string name="reset_favorites_confirm">Remove all favorite apps?</string>
+    <string name="reset">Reset</string>
+    <string name="favorites_cleared">Favorites cleared</string>
+    <string name="no_hidden_apps">No apps are currently hidden</string>
+    <string name="unhide_apps">Unhide Apps</string>
+    <string name="unhide_selected">Unhide Selected</string>
+    <string name="system">System</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_summary">No data leaves your device</string>
+    <!-- TODO before release: replace with the public URL of PRIVACY_POLICY.md -->
+    <string name="privacy_policy_url" translatable="false">https://github.com/rameti-sivamani/Minimal-Launcher/blob/main/PRIVACY_POLICY.md</string>
+    <string name="no_browser">No browser app found</string>
+    <string name="select_theme">Select Theme</string>
+    <string name="select_font_size">Select Font Size</string>
+
+    <plurals name="apps_hidden">
+        <item quantity="one">%1$d app hidden</item>
+        <item quantity="other">%1$d apps hidden</item>
+    </plurals>
+
+    <string-array name="themes">
+        <item>OLED Black</item>
+        <item>Dark Gray</item>
+        <item>Light</item>
+        <item>Auto (follow system)</item>
+    </string-array>
+
+    <string-array name="font_sizes">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+
+    <string-array name="sort_orders">
+        <item>Alphabetical</item>
+        <item>Most used today</item>
+        <item>Recently installed</item>
+    </string-array>
+
+    <!-- Focus Mode (v1.0) -->
+    <string name="deep_work_option">Deep Work (essential apps only)</string>
+    <string name="custom_focus_mode_option">Custom focus mode</string>
+    <string name="focus_mode_name_required">Please enter a name</string>
+    <string name="focus_mode_needs_apps">Pick at least one app, otherwise the app list would be empty</string>
+    <string name="allowed_apps_for">Allowed apps: %1$s</string>
+    <string name="delete_focus_mode_confirm">Delete %1$s?</string>
 </resources>

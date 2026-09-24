@@ -1,6 +1,8 @@
 package com.minimalist.launcher.ui.focus;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -9,11 +11,15 @@ import androidx.lifecycle.LiveData;
 import com.minimalist.launcher.data.database.AppDatabase;
 import com.minimalist.launcher.data.database.dao.FocusModeDao;
 import com.minimalist.launcher.data.database.entities.FocusMode;
+import com.minimalist.launcher.data.model.AppInfo;
+import com.minimalist.launcher.data.repository.AppRepository;
 import com.minimalist.launcher.utils.AppFilterHelper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * ViewModel for Focus Mode management
@@ -25,6 +31,7 @@ public class FocusModeViewModel extends AndroidViewModel {
     private final LiveData<List<FocusMode>> allFocusModes;
     private final LiveData<FocusMode> activeFocusMode;
     private final Executor executor;
+    private final AppRepository appRepository;
     
     public FocusModeViewModel(@NonNull Application application) {
         super(application);
@@ -34,6 +41,18 @@ public class FocusModeViewModel extends AndroidViewModel {
         this.allFocusModes = focusModeDao.getAllFocusModes();
         this.activeFocusMode = focusModeDao.getActiveFocusMode();
         this.executor = Executors.newSingleThreadExecutor();
+        this.appRepository = new AppRepository(application);
+    }
+
+    /**
+     * Load all launchable apps (including hidden ones) for the allowed-apps picker
+     */
+    public void loadSelectableApps(Consumer<List<AppInfo>> callback) {
+        Handler main = new Handler(Looper.getMainLooper());
+        executor.execute(() -> {
+            List<AppInfo> apps = appRepository.getLaunchableApps(Collections.emptyList(), false);
+            main.post(() -> callback.accept(apps));
+        });
     }
     
     /**

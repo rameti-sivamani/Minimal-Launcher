@@ -1,9 +1,10 @@
 package com.minimalist.launcher.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+
+import com.minimalist.launcher.R;
 
 /**
  * Manages theme settings and provides theme utilities
@@ -14,9 +15,6 @@ public class ThemeManager {
     public static final int THEME_DARK_GRAY = 1;
     public static final int THEME_LIGHT = 2;
     public static final int THEME_AUTO = 3;
-
-    // Broadcast action for theme changes
-    public static final String ACTION_THEME_CHANGED = "com.minimalist.launcher.THEME_CHANGED";
 
     private static final String PREFS_NAME = "theme_prefs";
     private static final String KEY_THEME = "selected_theme";
@@ -37,19 +35,10 @@ public class ThemeManager {
     }
 
     /**
-     * Set theme and notify all activities
+     * Save the theme. Other screens re-apply it in onResume.
      */
     public void setTheme(int theme) {
         prefs.edit().putInt(KEY_THEME, theme).apply();
-        notifyThemeChanged();
-    }
-
-    /**
-     * Broadcast theme change to all listening activities
-     */
-    private void notifyThemeChanged() {
-        Intent intent = new Intent(ACTION_THEME_CHANGED);
-        context.sendBroadcast(intent);
     }
 
     /**
@@ -128,17 +117,7 @@ public class ThemeManager {
      * Get theme name
      */
     public String getThemeName(int theme) {
-        switch (theme) {
-            case THEME_OLED_BLACK:
-                return "OLED Black";
-            case THEME_DARK_GRAY:
-                return "Dark Gray";
-            case THEME_LIGHT:
-                return "Light";
-            case THEME_AUTO:
-                return "Auto";
-            default:
-                return "Unknown";
-        }
+        String[] names = context.getResources().getStringArray(R.array.themes);
+        return theme >= 0 && theme < names.length ? names[theme] : names[THEME_OLED_BLACK];
     }
 }

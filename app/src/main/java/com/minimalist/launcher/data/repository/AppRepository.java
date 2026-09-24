@@ -1,11 +1,17 @@
 package com.minimalist.launcher.data.repository;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
+import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 
 import com.minimalist.launcher.data.database.AppDatabase;
@@ -15,116 +21,141 @@ import com.minimalist.launcher.data.model.AppInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
- * Repository for managing installed applications
- * Handles app list retrieval, filtering, and launch operations
+ * Repository for installed applications and their daily launch counters
  */
 public class AppRepository {
+
+    private static final String TAG = "AppRepository";
+
+    // Shared so every screen serialises counter updates on one thread
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final Context context;
     private final PackageManager packageManager;
     private final AppLaunchCounterDao launchCounterDao;
-    private final Executor executor;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public AppRepository(Context context) {
         this.context = context.getApplicationContext();
-        this.packageManager = context.getPackageManager();
-        AppDatabase database = AppDatabase.getInstance(context);
-        this.launchCounterDao = database.appLaunchCounterDao();
-        this.executor = Executors.newSingleThreadExecutor();
+        this.packageManager = this.context.getPackageManager();
+        this.launchCounterDao = AppDatabase.getInstance(context).appLaunchCounterDao();
     }
 
     /**
-     * Get all installed apps (excluding system apps by default)
+     * Get all launchable apps, sorted alphabetically.
+     *
+     * @param excludedPackages packages to leave out (e.g. hidden apps)
+     * @param loadIcons        icons are only loaded when they will be shown
      */
-    public List<AppInfo> getAllApps(boolean includeSystemApps) {
+    @WorkerThread
+    public List<AppInfo> getLaunchableApps(Collection<String> excludedPackages, boolean loadIcons) {
         List<AppInfo> appList = new ArrayList<>();
 
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
         List<ResolveInfo> resolveInfoList = packageManager.queryIntentActivities(intent, 0);
 
+        List<String> added = new ArrayList<>();
         for (ResolveInfo resolveInfo : resolveInfoList) {
             String packageName = resolveInfo.activityInfo.packageName;
 
-            // Skip our own launcher
-            if (packageName.equals(context.getPackageName())) {
+            if (packageName.equals(context.getPackageName())
+                    || excludedPackages.contains(packageName)
+                    || added.contains(packageName)) {
                 continue;
             }
 
-            try {
-                ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-                boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            ApplicationInfo applicationInfo = resolveInfo.activityInfo.applicationInfo;
+            boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
 
-                // Filter system apps if requested
-                if (!includeSystemApps && isSystemApp) {
-                    continue;
-                }
-
-                String appName = resolveInfo.loadLabel(packageManager).toString();
-
-                AppInfo app = new AppInfo(
-                        appName,
-                        packageName,
-                        resolveInfo.loadIcon(packageManager),
-                        isSystemApp);
-
-                appList.add(app);
-
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+            AppInfo app = new AppInfo(
+                    resolveInfo.loadLabel(packageManager).toString(),
+                    packageName,
+                    loadIcons ? resolveInfo.loadIcon(packageManager) : null,
+                    isSystemApp);
+            app.setInstallTime(getInstallTime(packageName));
+            appList.add(app);
+            added.add(packageName);
         }
 
-        // Sort alphabetically
         Collections.sort(appList);
-
         return appList;
     }
 
     /**
-     * Launch an app by package name
+     * Load a single app by package name, or null if it is not installed / launchable
      */
-    public void launchApp(String packageName) {
-        Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
-        if (launchIntent != null) {
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(launchIntent);
-
-            // Increment launch counter in background
-            incrementLaunchCounter(packageName);
+    @WorkerThread
+    public AppInfo getApp(String packageName, boolean loadIcon) {
+        if (packageManager.getLaunchIntentForPackage(packageName) == null) {
+            return null;
+        }
+        try {
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            return new AppInfo(
+                    packageManager.getApplicationLabel(appInfo).toString(),
+                    packageName,
+                    loadIcon ? packageManager.getApplicationIcon(appInfo) : null,
+                    isSystemApp);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
         }
     }
 
+    public boolean isLaunchable(String packageName) {
+        return packageManager.getLaunchIntentForPackage(packageName) != null;
+    }
+
     /**
-     * Increment launch counter for an app
+     * Launch an app and count the launch.
+     *
+     * @return true if the app was started
      */
+    public boolean launchApp(String packageName) {
+        Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+        if (launchIntent == null) {
+            return false;
+        }
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        try {
+            context.startActivity(launchIntent);
+        } catch (ActivityNotFoundException | SecurityException e) {
+            Log.w(TAG, "Unable to launch " + packageName, e);
+            return false;
+        }
+        incrementLaunchCounter(packageName);
+        return true;
+    }
+
     private void incrementLaunchCounter(String packageName) {
-        executor.execute(() -> {
+        EXECUTOR.execute(() -> {
             String today = getTodayDate();
             AppLaunchCounter counter = launchCounterDao.getCounter(packageName, today);
 
             if (counter == null) {
-                // Create new counter
+                String appName = packageName;
                 try {
                     ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-                    String appName = packageManager.getApplicationLabel(appInfo).toString();
-                    counter = new AppLaunchCounter(packageName, appName, today);
-                    counter.incrementLaunchCount();
-                    launchCounterDao.insert(counter);
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                    appName = packageManager.getApplicationLabel(appInfo).toString();
+                } catch (PackageManager.NameNotFoundException ignored) {
+                    // Fall back to the package name
                 }
+                // REPLACE also overwrites yesterday's row for this package (packageName is the key)
+                counter = new AppLaunchCounter(packageName, appName, today);
+                counter.incrementLaunchCount();
+                launchCounterDao.insert(counter);
             } else {
-                // Update existing counter
                 counter.incrementLaunchCount();
                 launchCounterDao.update(counter);
             }
@@ -132,10 +163,14 @@ public class AppRepository {
     }
 
     /**
-     * Get launch counter for a specific app
+     * Look up today's launch count off the main thread and deliver it on the main thread
      */
-    public LiveData<AppLaunchCounter> getLaunchCounter(String packageName) {
-        return launchCounterDao.getCounterLive(packageName, getTodayDate());
+    public void getTodayLaunchCount(String packageName, Consumer<Integer> callback) {
+        EXECUTOR.execute(() -> {
+            AppLaunchCounter counter = launchCounterDao.getCounter(packageName, getTodayDate());
+            int count = counter != null ? counter.getLaunchCount() : 0;
+            mainHandler.post(() -> callback.accept(count));
+        });
     }
 
     /**
@@ -146,19 +181,26 @@ public class AppRepository {
     }
 
     /**
-     * Reset daily counters (called at midnight)
+     * Remove counters from previous days (called by the daily worker)
      */
-    public void resetDailyCounters() {
-        executor.execute(() -> {
-            launchCounterDao.deleteOldCounters(getTodayDate());
-        });
+    @WorkerThread
+    public void resetDailyCountersSync() {
+        launchCounterDao.deleteOldCounters(getTodayDate());
+    }
+
+    private long getInstallTime(String packageName) {
+        try {
+            PackageInfo info = packageManager.getPackageInfo(packageName, 0);
+            return info.firstInstallTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            return 0;
+        }
     }
 
     /**
-     * Get today's date in yyyy-MM-dd format
+     * Today's date in yyyy-MM-dd (fixed locale so stored keys never change with language)
      */
-    private String getTodayDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
+    public static String getTodayDate() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
     }
 }
