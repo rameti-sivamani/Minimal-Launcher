@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout 
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/settings_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
+    android:layout_height="match_parent">
 
-    <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -20,16 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/app_bar_height"
-            app:title="Settings"
+            app:title="@string/settings"
+            app:navigationContentDescription="@string/navigate_up"
             app:navigationIcon="?attr/homeAsUpIndicator" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Settings Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/settings_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -43,279 +42,236 @@
             android:paddingTop="@dimen/spacing_medium"
             android:paddingBottom="@dimen/spacing_large">
 
-            <!-- Appearance Section Header -->
             <TextView
                 android:id="@+id/appearance_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Appearance"
-                android:textSize="@dimen/text_size_secondary"
-                android:textStyle="bold"
+                style="@style/SettingsHeader"
                 android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginBottom="@dimen/spacing_tiny" />
+                android:text="@string/appearance" />
 
-            <!-- Theme Setting -->
             <LinearLayout
                 android:id="@+id/theme_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/theme_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Theme"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/theme" />
 
                 <TextView
                     android:id="@+id/theme_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OLED Black"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Font Size Setting -->
             <LinearLayout
                 android:id="@+id/font_size_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/font_size_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Font Size"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/font_size" />
 
                 <TextView
                     android:id="@+id/font_size_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Medium"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Quick Info Toggle -->
             <LinearLayout
-                android:id="@+id/quick_info_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="horizontal">
+                android:id="@+id/show_icons_setting"
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/quick_info_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Quick Info"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/show_app_icons" />
 
                 <TextView
-                    android:id="@+id/quick_info_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hidden"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary" />
+                    android:id="@+id/show_icons_summary"
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Show Day of Week Toggle -->
             <LinearLayout
                 android:id="@+id/show_day_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="horizontal">
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/show_day_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Show Day of Week"
-                    android:textSize="@dimen/text_size_body" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/show_day_of_week" />
 
                 <TextView
                     android:id="@+id/show_day_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Yes"
-                    android:textSize="@dimen/text_size_secondary" />
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Apps Section Header -->
-            <TextView
-                android:id="@+id/apps_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Apps"
-                android:textSize="@dimen/text_size_secondary"
-                android:textStyle="bold"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_tiny" />
-
-            <!-- App Sorting -->
             <LinearLayout
-                android:id="@+id/app_sorting_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
+                android:id="@+id/quick_info_toggle"
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/app_sorting_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="App Sorting"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/quick_info" />
+
+                <TextView
+                    android:id="@+id/quick_info_status"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/usage_header"
+                style="@style/SettingsHeader"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/usage_awareness" />
+
+            <LinearLayout
+                android:id="@+id/show_screen_time_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/show_screen_time" />
+
+                <TextView
+                    android:id="@+id/show_screen_time_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/usage_access_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/usage_access_title" />
+
+                <TextView
+                    android:id="@+id/usage_access_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/warnings_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/enable_launch_warnings" />
+
+                <TextView
+                    android:id="@+id/warnings_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/threshold_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/launch_warning_threshold" />
+
+                <TextView
+                    android:id="@+id/threshold_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/focus_modes_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/focus_modes" />
+
+                <TextView
+                    android:id="@+id/focus_modes_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/apps_header"
+                style="@style/SettingsHeader"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/apps" />
+
+            <LinearLayout
+                android:id="@+id/app_sorting_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/app_sorting" />
 
                 <TextView
                     android:id="@+id/app_sorting_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Alphabetical"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Hidden Apps -->
             <LinearLayout
                 android:id="@+id/hidden_apps_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:id="@+id/hidden_apps_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hidden Apps"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/hidden_apps" />
 
                 <TextView
                     android:id="@+id/hidden_apps_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 apps hidden"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
-            <!-- Set as Default Launcher -->
-            <LinearLayout
-                android:id="@+id/set_default_launcher"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Set as Default Launcher"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Make this your home screen"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
-            </LinearLayout>
-
-            <!-- System Section Header -->
-            <TextView
-                android:id="@+id/system_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="System"
-                android:textSize="@dimen/text_size_secondary"
-                android:textStyle="bold"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_tiny" />
-
-            <!-- Reset Favorites -->
             <LinearLayout
                 android:id="@+id/reset_favorites_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/list_item_height_two_line"
-                android:paddingStart="@dimen/list_item_padding_horizontal"
-                android:paddingEnd="@dimen/list_item_padding_horizontal"
-                android:paddingTop="@dimen/list_item_padding_vertical"
-                android:paddingBottom="@dimen/list_item_padding_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:orientation="vertical">
+                style="@style/SettingsRow">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Reset Favorites"
-                    android:textSize="@dimen/text_size_body"
-                    android:textColor="@color/text_primary" />
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/reset_favorites" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Remove all favorite apps"
-                    android:textSize="@dimen/text_size_secondary"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginTop="@dimen/spacing_micro" />
+                    android:id="@+id/reset_favorites_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/system_header"
+                style="@style/SettingsHeader"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/system" />
+
+            <LinearLayout
+                android:id="@+id/set_default_launcher"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/set_as_default" />
+
+                <TextView
+                    android:id="@+id/default_launcher_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/privacy_policy_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/privacy_policy" />
+
+                <TextView
+                    android:id="@+id/privacy_policy_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/version_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/version" />
+
+                <TextView
+                    android:id="@+id/version_summary"
+                    style="@style/SettingsRowSummary" />
             </LinearLayout>
 
         </LinearLayout>

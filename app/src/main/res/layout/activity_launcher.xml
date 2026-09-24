@@ -29,7 +29,7 @@
             style="@style/TextAppearance.MinimalistLauncher.Display"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="12:00" />
+            tools:text="12:00" />
 
         <!-- Date Display -->
         <TextView
@@ -37,8 +37,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_medium"
-            android:text="Monday, January 1"
-            android:textSize="@dimen/text_size_date" />
+            android:textSize="@dimen/text_size_date"
+            tools:text="Monday, January 1" />
+
+        <!-- Screen Time Today -->
+        <TextView
+            android:id="@+id/screen_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_tiny"
+            android:minHeight="@dimen/touch_target_min"
+            android:gravity="center"
+            android:textSize="@dimen/text_size_secondary"
+            android:visibility="gone"
+            tools:text="Screen time today: 1h 20m"
+            tools:visibility="visible" />
 
         <!-- Focus Mode Indicator -->
         <TextView
@@ -46,7 +59,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_tiny"
-            android:text=""
             android:textSize="@dimen/text_size_caption"
             android:visibility="gone" />
 
@@ -66,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:paddingEnd="@dimen/spacing_small"
                 android:paddingRight="@dimen/spacing_small"
-                android:text="🔋 85%"
+                tools:text="🔋 85%"
                 android:textSize="@dimen/text_size_caption" />
 
             <!-- Network Info -->
@@ -74,7 +86,7 @@
                 android:id="@+id/network_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📶 WiFi"
+                tools:text="📶 Wi-Fi"
                 android:textSize="@dimen/text_size_caption" />
         </LinearLayout>
 

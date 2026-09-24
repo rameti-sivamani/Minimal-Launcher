@@ -23,15 +23,18 @@ public class FocusModeAdapter extends RecyclerView.Adapter<FocusModeAdapter.Focu
     private List<FocusMode> focusModes = new ArrayList<>();
     private OnFocusModeActionListener activateListener;
     private OnFocusModeActionListener deleteListener;
+    private OnFocusModeActionListener editListener;
     
     public interface OnFocusModeActionListener {
         void onAction(FocusMode focusMode);
     }
     
-    public FocusModeAdapter(OnFocusModeActionListener activateListener, 
-                           OnFocusModeActionListener deleteListener) {
+    public FocusModeAdapter(OnFocusModeActionListener activateListener,
+                           OnFocusModeActionListener deleteListener,
+                           OnFocusModeActionListener editListener) {
         this.activateListener = activateListener;
         this.deleteListener = deleteListener;
+        this.editListener = editListener;
     }
     
     @NonNull
@@ -92,6 +95,13 @@ public class FocusModeAdapter extends RecyclerView.Adapter<FocusModeAdapter.Focu
                 }
             });
             
+            // Tap the card to edit name and allowed apps
+            itemView.setOnClickListener(v -> {
+                if (editListener != null) {
+                    editListener.onAction(focusMode);
+                }
+            });
+
             deleteButton.setOnClickListener(v -> {
                 if (deleteListener != null) {
                     deleteListener.onAction(focusMode);

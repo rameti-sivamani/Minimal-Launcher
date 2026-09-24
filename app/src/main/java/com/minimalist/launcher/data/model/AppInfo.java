@@ -13,6 +13,7 @@ public class AppInfo implements Comparable<AppInfo> {
     private Drawable icon;
     private boolean isSystemApp;
     private int launchCount; // Daily launch count
+    private long installTime; // First install time, used for sorting
 
     public AppInfo(String appName, String packageName, Drawable icon, boolean isSystemApp) {
         this.appName = appName;
@@ -61,6 +62,14 @@ public class AppInfo implements Comparable<AppInfo> {
 
     public void setLaunchCount(int launchCount) {
         this.launchCount = launchCount;
+    }
+
+    public long getInstallTime() {
+        return installTime;
+    }
+
+    public void setInstallTime(long installTime) {
+        this.installTime = installTime;
     }
 
     @Override

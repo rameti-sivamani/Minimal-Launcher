@@ -50,10 +50,10 @@ public class LauncherApplication extends Application {
         .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
         .build();
         
-        // Enqueue work
+        // KEEP: don't restart the schedule every time the process starts
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "daily_reset",
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.KEEP,
             dailyResetWork
         );
     }

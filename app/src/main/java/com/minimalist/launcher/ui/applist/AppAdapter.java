@@ -25,6 +25,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
     private final OnAppClickListener clickListener;
     private final OnAppLongClickListener longClickListener;
     private boolean showIcons = false;
+    private int textColor = 0xFFE8E8E8;
+    private int secondaryTextColor = 0xFF9B9B9B;
 
     public interface OnAppClickListener {
         void onAppClick(AppInfo app);
@@ -67,10 +69,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
     }
 
     /**
-     * Toggle app icon visibility
+     * Update icon visibility and theme colors in one pass
      */
-    public void setShowIcons(boolean showIcons) {
+    public void setAppearance(boolean showIcons, int textColor, int secondaryTextColor) {
         this.showIcons = showIcons;
+        this.textColor = textColor;
+        this.secondaryTextColor = secondaryTextColor;
         notifyDataSetChanged();
     }
 
@@ -92,12 +96,15 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
 
         public void bind(AppInfo app) {
             appName.setText(app.getAppName());
+            appName.setTextColor(textColor);
+            launchCounter.setTextColor(secondaryTextColor);
 
             // Show/hide icon based on settings
-            if (showIcons) {
+            if (showIcons && app.getIcon() != null) {
                 appIcon.setImageDrawable(app.getIcon());
                 appIcon.setVisibility(View.VISIBLE);
             } else {
+                appIcon.setImageDrawable(null);
                 appIcon.setVisibility(View.GONE);
             }
 

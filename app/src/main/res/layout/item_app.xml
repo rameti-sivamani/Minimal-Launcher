@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/list_item_height_single"
@@ -21,7 +22,7 @@
         android:layout_height="@dimen/icon_size_standard"
         android:layout_marginEnd="@dimen/spacing_medium"
         android:visibility="gone"
-        android:contentDescription="App Icon" />
+        android:importantForAccessibility="no" />
 
     <!-- App Name (Text-based) -->
     <TextView
@@ -30,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         style="@style/AppNameTextStyle"
-        android:text="App Name"
+        tools:text="App Name"
         android:maxLines="1"
         android:ellipsize="end"
         android:paddingTop="0dp"
@@ -42,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="0"
+        tools:text="0"
         android:textSize="12sp"
         android:visibility="gone"
         android:paddingStart="@dimen/spacing_tiny"

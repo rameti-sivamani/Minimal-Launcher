@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,9 @@ public class HiddenAppsManager {
      */
     public List<String> getHiddenApps() {
         Set<String> hiddenSet = prefs.getStringSet(KEY_HIDDEN_APPS, new HashSet<>());
-        return new ArrayList<>(hiddenSet);
+        List<String> hidden = new ArrayList<>(hiddenSet);
+        Collections.sort(hidden); // Stable order so lists can be compared
+        return hidden;
     }
 
     /**

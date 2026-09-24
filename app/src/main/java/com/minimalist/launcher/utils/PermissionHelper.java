@@ -2,63 +2,67 @@ package com.minimalist.launcher.utils;
 
 import android.app.Activity;
 import android.app.AppOpsManager;
+import android.app.role.RoleManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.net.Uri;
+import android.os.Process;
 import android.provider.Settings;
 
 /**
- * Helper class for managing permissions
- * Particularly for usage stats permission which requires special handling
+ * Helper class for usage access and default-launcher (home role) handling
  */
 public class PermissionHelper {
 
     /**
-     * Check if usage stats permission is granted
+     * Check if usage access has been granted in system settings
      */
     public static boolean hasUsageStatsPermission(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            if (appOps == null) {
-                return false;
-            }
-
-            int mode = appOps.checkOpNoThrow(
-                    AppOpsManager.OPSTR_GET_USAGE_STATS,
-                    android.os.Process.myUid(),
-                    context.getPackageName());
-
-            return mode == AppOpsManager.MODE_ALLOWED;
+        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+        if (appOps == null) {
+            return false;
         }
-        return false;
+        int mode = appOps.unsafeCheckOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                context.getPackageName());
+        return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     /**
-     * Open usage stats settings screen
+     * Open the usage access screen, pointing at this app where the system supports it
      */
     public static void requestUsageStatsPermission(Activity activity) {
         Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        activity.startActivity(intent);
+        intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+        try {
+            activity.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            // Some devices don't accept the package URI
+            activity.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+        }
     }
 
     /**
-     * Check if this app is set as default launcher
+     * Check if this app currently holds the home (default launcher) role
      */
     public static boolean isDefaultLauncher(Context context) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-
-        String defaultLauncher = intent.resolveActivity(context.getPackageManager())
-                .getPackageName();
-
-        return context.getPackageName().equals(defaultLauncher);
+        RoleManager roleManager = context.getSystemService(RoleManager.class);
+        return roleManager != null
+                && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)
+                && roleManager.isRoleHeld(RoleManager.ROLE_HOME);
     }
 
     /**
-     * Open default apps settings to allow user to set as default launcher
+     * Intent for the one-tap system "set default home app" dialog, or the home settings
+     * screen as a fallback. Start it with an activity result launcher.
      */
-    public static void requestDefaultLauncher(Activity activity) {
-        Intent intent = new Intent(Settings.ACTION_HOME_SETTINGS);
-        activity.startActivity(intent);
+    public static Intent createDefaultLauncherIntent(Context context) {
+        RoleManager roleManager = context.getSystemService(RoleManager.class);
+        if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
+            return roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME);
+        }
+        return new Intent(Settings.ACTION_HOME_SETTINGS);
     }
 }
