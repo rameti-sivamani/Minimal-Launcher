@@ -102,19 +102,10 @@
 
     <!-- Onboarding and permissions -->
     <string name="welcome_title">Welcome to Minimalist Launcher</string>
-    <string name="welcome_message">A calmer home screen that helps you use your phone with intention.
-
-Next we'll ask for two optional things:
-
-1. Usage access, to show your screen time
-2. Setting this as your home app</string>
+    <string name="welcome_message">A calmer home screen that helps you use your phone with intention.\n\nNext we\'ll ask for two optional things:\n\n1. Usage access, to show your screen time\n2. Setting this as your home app</string>
     <string name="get_started">Get started</string>
     <string name="usage_access_title">Usage Access</string>
-    <string name="usage_access_disclosure">Minimalist Launcher uses Android's usage access to calculate how long you have used your apps today and show it on your home screen.
-
-This data is processed only on your device. It is never uploaded, shared or sold.
-
-On the next screen, find Minimalist Launcher and turn on "Permit usage access". You can turn it off at any time.</string>
+    <string name="usage_access_disclosure">Minimalist Launcher uses Android\'s usage access to calculate how long you have used your apps today and show it on your home screen.\n\nThis data is processed only on your device. It is never uploaded, shared or sold.\n\nOn the next screen, find Minimalist Launcher and turn on \"Permit usage access\". You can turn it off at any time.</string>
     <string name="usage_access_revoke_info">Usage access is on. Screen time is calculated only on your device. You can turn it off in system settings at any time.</string>
     <string name="not_now">Not now</string>
     <string name="open_settings">Open Settings</string>
@@ -129,11 +120,9 @@ On the next screen, find Minimalist Launcher and turn on "Permit usage access". 
     <string name="removed_from_favorites">Removed from favorites</string>
     <string name="favorites_full_title">Favorites Full</string>
     <string name="favorites_full_message">You can only have %1$d favorite apps. Remove one first.</string>
-    <string name="system_app_message">%1$s is a system app and can't be uninstalled. You can disable it from App Info.</string>
+    <string name="system_app_message">%1$s is a system app and can\'t be uninstalled. You can disable it from App Info.</string>
     <string name="hide">Hide</string>
-    <string name="hide_app_message">Hide %1$s from the launcher?
-
-You can unhide it from Settings.</string>
+    <string name="hide_app_message">Hide %1$s from the launcher?\n\nYou can unhide it from Settings.</string>
     <string name="app_hidden">%1$s hidden</string>
 
     <!-- Settings (v1.0) -->
