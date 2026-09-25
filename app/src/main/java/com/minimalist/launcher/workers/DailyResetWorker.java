@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters;
 
 import com.minimalist.launcher.data.repository.AppRepository;
 import com.minimalist.launcher.data.repository.UsageRepository;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 
 /**
  * Worker that runs daily at midnight to reset counters and clean old data.
@@ -25,7 +26,10 @@ public class DailyResetWorker extends Worker {
     public Result doWork() {
         try {
             new AppRepository(getApplicationContext()).resetDailyCountersSync();
-            new UsageRepository(getApplicationContext()).cleanupOldDataSync();
+            UsageRepository usageRepository = new UsageRepository(getApplicationContext());
+            usageRepository.cleanupOldDataSync();
+            // Save yesterday's screen time for streaks before Android forgets it
+            usageRepository.backfillDailyTotals(new WellbeingStore(getApplicationContext()));
             return Result.success();
         } catch (Exception e) {
             Log.e("DailyResetWorker", "Daily reset failed", e);

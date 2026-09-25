@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.FavoritesHelper;
 import com.minimalist.launcher.utils.FontScale;
@@ -155,6 +156,14 @@ public class AppListActivity extends AppCompatActivity {
         }
         labels.add(getString(R.string.daily_time_limit));
         actions.add(() -> showLimitDialog(app));
+        final WellbeingStore wellbeing = new WellbeingStore(this);
+        final boolean paused = wellbeing.isPauseApp(app.getPackageName());
+        labels.add(getString(paused ? R.string.pause_remove : R.string.pause_add));
+        actions.add(() -> {
+            wellbeing.setPauseApp(app.getPackageName(), !paused);
+            Toast.makeText(this, getString(paused ? R.string.pause_removed : R.string.pause_added, app.getAppName()),
+                    Toast.LENGTH_SHORT).show();
+        });
         labels.add(getString(R.string.app_info));
         actions.add(() -> openAppInfo(app));
         labels.add(getString(R.string.uninstall));

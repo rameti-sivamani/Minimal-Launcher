@@ -158,10 +158,22 @@
     </plurals>
 
     <string-array name="themes">
-        <item>OLED Black</item>
-        <item>Dark Gray</item>
-        <item>Light</item>
-        <item>Auto (follow system)</item>
+        <item>Aura (bold, dark)</item>
+        <item>Mono (black and white)</item>
+        <item>Paper (warm, light)</item>
+        <item>Auto (Aura at night, Paper by day)</item>
+    </string-array>
+    <string-array name="accents_dark">
+        <item>Lime</item>
+        <item>Tangerine</item>
+        <item>Sky</item>
+        <item>Orchid</item>
+    </string-array>
+    <string-array name="accents_paper">
+        <item>Rust</item>
+        <item>Forest</item>
+        <item>Ink</item>
+        <item>Plum</item>
     </string-array>
 
     <string-array name="font_sizes">
@@ -256,4 +268,43 @@
     <string name="report_problem_has_crash">A crash was recorded. Tap to share the details</string>
     <string name="report_problem_no_crash">No crashes recorded</string>
     <string name="crash_report_subject">Minimalist Launcher crash report</string>
+
+    <!-- Redesign: home -->
+    <string name="search_apps_button">Search apps</string>
+    <string name="goal_title">%1$s of %2$s</string>
+    <string name="goal_left">%1$s left today</string>
+    <string name="goal_over">%1$s over your goal</string>
+    <string name="goal_needs_access">Turn on usage access to track your goal</string>
+    <string name="streak_start">Start a streak today</string>
+    <plurals name="streak_days">
+        <item quantity="one">%1$d-day streak</item>
+        <item quantity="other">%1$d-day streak</item>
+    </plurals>
+    <string name="intention_prompt">Set today\'s intention</string>
+    <string name="intention_title">Today\'s intention</string>
+    <string name="intention_hint">Today I will…</string>
+    <string name="accent_colour">Accent Colour</string>
+    <string name="daily_goal">Daily Screen Time Goal</string>
+    <string name="daily_goal_summary">%1$s a day. Stay under it to keep your streak.</string>
+
+    <!-- Mindful pause -->
+    <string name="pause_opening">Opening %1$s</string>
+    <string name="pause_breathe_in">Breathe in.</string>
+    <string name="pause_breathe_out">Breathe out.</string>
+    <string name="pause_still_want">Still want to go in?</string>
+    <string name="pause_open_in">Open in %1$d…</string>
+    <string name="pause_open">Open %1$s</string>
+    <string name="pause_dont_need">I don\'t need it</string>
+    <string name="pause_footer">Closing now helps keep your streak going</string>
+    <string name="pause_good_choice">Nice. That\'s time back for you.</string>
+    <string name="pause_add">Pause before opening</string>
+    <string name="pause_remove">Stop pausing before opening</string>
+    <string name="pause_added">%1$s will now start with a short breathing pause</string>
+    <string name="pause_removed">%1$s opens straight away again</string>
+    <plurals name="pause_opened_times">
+        <item quantity="one">Opened %1$d time today</item>
+        <item quantity="other">Opened %1$d times today</item>
+    </plurals>
+    <string name="pause_used">%1$s used</string>
+    <string name="pause_left">%1$s left of your limit</string>
 </resources>

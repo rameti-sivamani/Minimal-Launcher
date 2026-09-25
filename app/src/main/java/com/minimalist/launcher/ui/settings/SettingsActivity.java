@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.BuildConfig;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 import com.minimalist.launcher.ui.focus.FocusModeActivity;
 import com.minimalist.launcher.ui.usage.UsageActivity;
 import com.minimalist.launcher.utils.AppLimitsManager;
@@ -82,6 +83,8 @@ public class SettingsActivity extends AppCompatActivity {
         // Appearance
         onClick(R.id.theme_setting, this::showThemeDialog);
         onClick(R.id.font_size_setting, this::showFontSizeDialog);
+        onClick(R.id.accent_setting, this::showAccentDialog);
+        onClick(R.id.goal_setting, this::showGoalDialog);
         onClick(R.id.show_icons_setting, () -> toggle(Prefs.KEY_SHOW_ICONS, false));
         onClick(R.id.show_day_toggle, () -> toggle(Prefs.KEY_SHOW_DAY_OF_WEEK, true));
         onClick(R.id.quick_info_toggle, () -> toggle(Prefs.KEY_SHOW_QUICK_INFO, false));
@@ -124,6 +127,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void refreshSummaries() {
         setSummary(R.id.theme_summary, themeManager.getThemeName(themeManager.getCurrentTheme()));
+        setSummary(R.id.accent_summary, themeManager.getAccentName(themeManager.getAccentIndex()));
+        setSummary(R.id.goal_summary, getString(R.string.daily_goal_summary,
+                ScreenTimeCalculator.format(new WellbeingStore(this).getGoalMillis())));
         setSummary(R.id.font_size_summary, getResources().getStringArray(R.array.font_sizes)[Prefs.fontSize(this)]);
         setSummary(R.id.show_icons_summary, onOff(Prefs.showIcons(this)));
         setSummary(R.id.show_day_status, onOff(Prefs.showDayOfWeek(this)));
@@ -191,6 +197,31 @@ public class SettingsActivity extends AppCompatActivity {
                     themeManager.setTheme(which);
                     applyTheme();
                 });
+    }
+
+    private void showAccentDialog() {
+        String[] names = new String[4];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = themeManager.getAccentName(i);
+        }
+        showSingleChoice(R.string.accent_colour, names, themeManager.getAccentIndex(), which -> {
+            themeManager.setAccentIndex(which);
+            applyTheme();
+        });
+    }
+
+    private void showGoalDialog() {
+        WellbeingStore store = new WellbeingStore(this);
+        int[] options = WellbeingStore.GOAL_OPTIONS_MINUTES;
+        String[] labels = new String[options.length];
+        int checked = -1;
+        for (int i = 0; i < options.length; i++) {
+            labels[i] = ScreenTimeCalculator.format(options[i] * 60_000L);
+            if (options[i] == store.getGoalMinutes()) {
+                checked = i;
+            }
+        }
+        showSingleChoice(R.string.daily_goal, labels, checked, which -> store.setGoalMinutes(options[which]));
     }
 
     private void showFontSizeDialog() {

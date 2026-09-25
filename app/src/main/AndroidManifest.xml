@@ -80,6 +80,14 @@
             android:label="@string/usage_report"
             android:theme="@style/Theme.MinimalistLauncher" />
 
+        <!-- Mindful pause before a distracting app -->
+        <activity
+            android:name=".ui.pause.PauseActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.MinimalistLauncher" />
+
         <!-- Focus Mode Activity -->
         <activity
             android:name=".ui.focus.FocusModeActivity"
