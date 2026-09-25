@@ -275,6 +275,31 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/battery_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/keep_launcher_running" />
+
+                <TextView
+                    android:id="@+id/battery_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/crash_report_setting"
+                style="@style/SettingsRow">
+
+                <TextView
+                    style="@style/SettingsRowTitle"
+                    android:text="@string/report_problem" />
+
+                <TextView
+                    android:id="@+id/crash_report_summary"
+                    style="@style/SettingsRowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/privacy_policy_setting"
                 style="@style/SettingsRow">
 

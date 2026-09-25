@@ -25,6 +25,7 @@ import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
 import com.minimalist.launcher.ui.focus.FocusModeActivity;
 import com.minimalist.launcher.ui.usage.UsageActivity;
 import com.minimalist.launcher.utils.AppLimitsManager;
+import com.minimalist.launcher.utils.CrashLog;
 import com.minimalist.launcher.utils.FavoritesHelper;
 import com.minimalist.launcher.utils.HiddenAppsManager;
 import com.minimalist.launcher.utils.PermissionHelper;
@@ -103,6 +104,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         // System
         onClick(R.id.set_default_launcher, this::setAsDefaultLauncher);
+        onClick(R.id.battery_setting, () -> PermissionHelper.openBatterySettings(this));
+        onClick(R.id.crash_report_setting, this::shareCrashReport);
         onClick(R.id.privacy_policy_setting, this::openPrivacyPolicy);
     }
 
@@ -147,6 +150,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         setSummary(R.id.default_launcher_summary, getString(PermissionHelper.isDefaultLauncher(this)
                 ? R.string.already_default : R.string.set_as_default_desc));
+        setSummary(R.id.battery_summary, getString(R.string.keep_launcher_running_summary));
+        setSummary(R.id.crash_report_summary, getString(CrashLog.read(this) != null
+                ? R.string.report_problem_has_crash : R.string.report_problem_no_crash));
         setSummary(R.id.privacy_policy_summary, getString(R.string.privacy_policy_summary));
         setSummary(R.id.version_summary, BuildConfig.VERSION_NAME);
     }
@@ -326,6 +332,28 @@ public class SettingsActivity extends AppCompatActivity {
             defaultLauncherRequest.launch(PermissionHelper.createDefaultLauncherIntent(this));
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.set_default_manually, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Share the last crash report through any app the user picks (email, chat...).
+     * Nothing is sent automatically.
+     */
+    private void shareCrashReport() {
+        String report = CrashLog.read(this);
+        if (report == null) {
+            Toast.makeText(this, R.string.report_problem_no_crash, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crash_report_subject));
+        send.putExtra(Intent.EXTRA_TEXT, report);
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.report_problem)));
+            CrashLog.clear(this);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_browser, Toast.LENGTH_SHORT).show();
         }
     }
 

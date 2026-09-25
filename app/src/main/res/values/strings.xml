@@ -244,4 +244,16 @@
     <string name="usage_of_limit">%1$s / %2$s</string>
     <string name="usage_report_needs_access">Turn on usage access to see how much time you spend in each app. The data stays on this device.</string>
     <string name="today">Today</string>
+
+    <!-- Reliability -->
+    <string name="default_lost_title">Your home screen was switched back</string>
+    <string name="default_lost_message">Android changed the home screen back to the phone\'s original launcher. This usually happens when battery saving closes the launcher in the background.\n\nSet Minimalist Launcher as your home app again, and in Battery settings choose \"Unrestricted\" (or \"No restrictions\") so it stays.</string>
+    <string name="battery_settings">Battery settings</string>
+    <string name="battery_settings_hint">Open Battery and choose Unrestricted / No restrictions</string>
+    <string name="keep_launcher_running">Keep launcher running</string>
+    <string name="keep_launcher_running_summary">Stop battery saving from switching your home screen back</string>
+    <string name="report_problem">Report a problem</string>
+    <string name="report_problem_has_crash">A crash was recorded. Tap to share the details</string>
+    <string name="report_problem_no_crash">No crashes recorded</string>
+    <string name="crash_report_subject">Minimalist Launcher crash report</string>
 </resources>

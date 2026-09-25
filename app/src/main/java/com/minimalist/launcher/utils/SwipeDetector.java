@@ -3,13 +3,19 @@ package com.minimalist.launcher.utils;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
+
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
  * Detects deliberate swipes in four directions using density-independent thresholds,
  * so gestures feel the same on every screen size.
- * Swipes that start at the far left/right edge are ignored: Android reserves those
- * for the system Back gesture.
+ * Swipes that start inside Android's system gesture zones (the Back edges and the
+ * bottom Home/Recents bar) are ignored, so the launcher never fights the system
+ * gestures and the Recents animation stays smooth.
  */
 public class SwipeDetector {
 
@@ -25,25 +31,27 @@ public class SwipeDetector {
 
     private final GestureDetector detector;
 
-    public SwipeDetector(Context context, Listener listener) {
+    /**
+     * @param root the full-screen view whose touches are fed in; used for its size and
+     *             for the system gesture insets
+     */
+    public SwipeDetector(Context context, View root, Listener listener) {
         float density = context.getResources().getDisplayMetrics().density;
         final float minDistance = MIN_DISTANCE_DP * density;
-        final float edge = EDGE_DP * density;
+        final float minEdge = EDGE_DP * density;
         final float minVelocity = ViewConfiguration.get(context).getScaledMinimumFlingVelocity() * 2f;
-        final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
 
         detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) {
+                if (e1 == null || startsInSystemGestureZone(e1, root, minEdge)) {
                     return false;
                 }
                 float dx = e2.getX() - e1.getX();
                 float dy = e2.getY() - e1.getY();
 
                 if (Math.abs(dx) > Math.abs(dy) * 1.2f) {
-                    boolean fromEdge = e1.getX() < edge || e1.getX() > screenWidth - edge;
-                    if (fromEdge || Math.abs(dx) < minDistance || Math.abs(velocityX) < minVelocity) {
+                    if (Math.abs(dx) < minDistance || Math.abs(velocityX) < minVelocity) {
                         return false;
                     }
                     return listener.onSwipe(dx > 0 ? Direction.RIGHT : Direction.LEFT);
@@ -57,6 +65,26 @@ public class SwipeDetector {
                 return false;
             }
         });
+    }
+
+    private static boolean startsInSystemGestureZone(MotionEvent down, View root, float minEdge) {
+        int width = root.getWidth();
+        int height = root.getHeight();
+        if (width == 0 || height == 0) {
+            return false;
+        }
+        Insets gestures = Insets.NONE;
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
+        if (insets != null) {
+            gestures = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
+        }
+        float left = Math.max(gestures.left, minEdge);
+        float right = Math.max(gestures.right, minEdge);
+        float x = down.getX();
+        float y = down.getY();
+        return x < left || x > width - right
+                || y > height - gestures.bottom
+                || y < gestures.top;
     }
 
     /**

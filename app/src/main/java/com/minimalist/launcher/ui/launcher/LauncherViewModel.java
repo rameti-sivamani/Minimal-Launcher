@@ -41,7 +41,12 @@ public class LauncherViewModel extends AndroidViewModel {
     private final UsageRepository usageRepository;
     private final AppRepository appRepository;
     private final FavoritesHelper favoritesHelper;
+    private static final long SCREEN_TIME_REFRESH_MS = 60_000;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private long lastScreenTimeRefresh = 0;
+    // Package names + icon setting of the favorites last shown, to skip identical reloads
+    private String lastFavoritesKey = null;
 
     private final MutableLiveData<String> currentTime = new MutableLiveData<>();
     private final MutableLiveData<String> currentDate = new MutableLiveData<>();
@@ -81,6 +86,12 @@ public class LauncherViewModel extends AndroidViewModel {
      * Recompute today's screen time in the background (-1 = no usage access)
      */
     public void refreshScreenTime() {
+        // Reading usage events is expensive: at most once a minute
+        long now = System.currentTimeMillis();
+        if (screenTimeMillis.getValue() != null && now - lastScreenTimeRefresh < SCREEN_TIME_REFRESH_MS) {
+            return;
+        }
+        lastScreenTimeRefresh = now;
         executor.execute(() -> screenTimeMillis.postValue(usageRepository.getTodayScreenTimeMillis()));
     }
 
@@ -111,7 +122,14 @@ public class LauncherViewModel extends AndroidViewModel {
                     favoritesHelper.removeFavorite(packageName);
                 }
             }
-            favorites.postValue(apps);
+            StringBuilder key = new StringBuilder(loadIcons ? "i:" : "t:");
+            for (AppInfo app : apps) {
+                key.append(app.getPackageName()).append('|').append(app.getAppName()).append(',');
+            }
+            if (!key.toString().equals(lastFavoritesKey)) {
+                lastFavoritesKey = key.toString();
+                favorites.postValue(apps);
+            }
         });
     }
 

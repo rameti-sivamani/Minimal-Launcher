@@ -271,7 +271,7 @@ public class AppListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeGesture() {
-        swipeDetector = new SwipeDetector(this, direction -> {
+        swipeDetector = new SwipeDetector(this, getWindow().getDecorView(), direction -> {
             // Close with the gesture that mirrors how the list was opened
             if (direction == SwipeDetector.Direction.LEFT) {
                 Transitions.finish(this, Transitions.Slide.FROM_LEFT);

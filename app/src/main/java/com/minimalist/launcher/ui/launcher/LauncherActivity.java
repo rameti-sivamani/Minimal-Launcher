@@ -57,7 +57,11 @@ public class LauncherActivity extends AppCompatActivity {
 
     private static final String ONBOARDING_PREFS = "launcher_prefs";
     private static final String KEY_ONBOARDING_DONE = "onboarding_done";
+    private static final String KEY_WAS_DEFAULT = "was_default_launcher";
     private static final long CLOCK_TICK_MS = 15_000;
+    private static final long DEFERRED_REFRESH_MS = 400;
+
+    private String appliedAppearance = null;
 
     private LauncherViewModel viewModel;
     private TextView timeText;
@@ -137,22 +141,71 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        applyTheme();
-        applyFontSize();
+        // Only cheap work here: this runs every time the user returns home, during the
+        // system's return animation. Anything heavier is deferred until it has finished.
+        applyAppearanceIfChanged();
 
         viewModel.updateTimeAndDate();
+        updateFocusIndicator();
         clockHandler.removeCallbacks(clockTick);
         clockHandler.postDelayed(clockTick, CLOCK_TICK_MS);
 
-        viewModel.loadFavorites();
-        updateScreenTimeVisibility();
-        updateQuickInfo();
+        clockHandler.removeCallbacks(deferredRefresh);
+        clockHandler.postDelayed(deferredRefresh, DEFERRED_REFRESH_MS);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         clockHandler.removeCallbacks(clockTick);
+        clockHandler.removeCallbacks(deferredRefresh);
+    }
+
+    private final Runnable deferredRefresh = () -> {
+        viewModel.loadFavorites();
+        updateScreenTimeVisibility();
+        updateQuickInfo();
+        checkStillDefaultLauncher();
+    };
+
+    /**
+     * Re-apply theme, font size and icon setting only when one of them changed
+     */
+    private void applyAppearanceIfChanged() {
+        ThemeManager themeManager = new ThemeManager(this);
+        String signature = themeManager.getEffectiveTheme() + "/" + Prefs.fontSize(this) + "/" + Prefs.showIcons(this);
+        if (signature.equals(appliedAppearance)) {
+            return;
+        }
+        appliedAppearance = signature;
+        applyTheme();
+        applyFontSize();
+    }
+
+    // ---------------------------------------------------------------------
+    // Default home app
+    // ---------------------------------------------------------------------
+
+    /**
+     * Some phones (and battery savers that keep killing the launcher) silently switch the
+     * home screen back to the built-in launcher. Notice it and offer a fix once per loss.
+     */
+    private void checkStillDefaultLauncher() {
+        SharedPreferences prefs = getSharedPreferences(ONBOARDING_PREFS, MODE_PRIVATE);
+        boolean isDefault = PermissionHelper.isDefaultLauncher(this);
+        boolean wasDefault = prefs.getBoolean(KEY_WAS_DEFAULT, false);
+        if (isDefault != wasDefault) {
+            prefs.edit().putBoolean(KEY_WAS_DEFAULT, isDefault).apply();
+        }
+        if (!isDefault && wasDefault && prefs.getBoolean(KEY_ONBOARDING_DONE, false)) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.default_lost_title)
+                    .setMessage(R.string.default_lost_message)
+                    .setPositiveButton(R.string.set_as_default, (dialog, which) -> promptSetAsDefaultLauncher())
+                    .setNeutralButton(R.string.battery_settings, (dialog, which) -> PermissionHelper.openBatterySettings(this))
+                    .setNegativeButton(R.string.not_now, null)
+                    .show();
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -256,7 +309,7 @@ public class LauncherActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
 
     private void setupGestures() {
-        swipeDetector = new SwipeDetector(this, direction -> {
+        swipeDetector = new SwipeDetector(this, getWindow().getDecorView(), direction -> {
             switch (direction) {
                 case UP:
                     openAppList(Transitions.Slide.FROM_BOTTOM);

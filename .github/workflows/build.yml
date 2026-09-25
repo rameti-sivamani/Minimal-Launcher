@@ -1,9 +1,8 @@
 name: Build
 
 on:
+  # Every push (any branch) builds an installable APK; PRs show the same check
   push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 jobs:

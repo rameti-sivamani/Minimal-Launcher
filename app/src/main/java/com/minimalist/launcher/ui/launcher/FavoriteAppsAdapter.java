@@ -45,6 +45,9 @@ public class FavoriteAppsAdapter extends RecyclerView.Adapter<FavoriteAppsAdapte
      * Update appearance in one pass (icons, theme color, font size)
      */
     public void setAppearance(boolean showIcons, int textColor, float textSizeSp) {
+        if (this.showIcons == showIcons && this.textColor == textColor && this.textSizeSp == textSizeSp) {
+            return; // Nothing changed: avoid rebinding every time home is shown
+        }
         this.showIcons = showIcons;
         this.textColor = textColor;
         this.textSizeSp = textSizeSp;
