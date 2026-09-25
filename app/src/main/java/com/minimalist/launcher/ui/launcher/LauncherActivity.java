@@ -32,12 +32,15 @@ import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.database.entities.FocusMode;
 import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.StreakCalculator;
 import com.minimalist.launcher.ui.applist.AppListActivity;
+import com.minimalist.launcher.ui.lockin.LockInActivity;
 import com.minimalist.launcher.ui.settings.SettingsActivity;
 import com.minimalist.launcher.ui.usage.UsageActivity;
 import com.minimalist.launcher.utils.AppFilterHelper;
 import com.minimalist.launcher.utils.FontScale;
 import com.minimalist.launcher.utils.LaunchGate;
+import com.minimalist.launcher.utils.LockInManager;
 import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SwipeDetector;
@@ -57,12 +60,24 @@ public class LauncherActivity extends AppCompatActivity {
 
     private static final String ONBOARDING_PREFS = "launcher_prefs";
     private static final String KEY_ONBOARDING_DONE = "onboarding_done";
+    private static final String KEY_WAS_DEFAULT = "was_default_launcher";
     private static final long CLOCK_TICK_MS = 15_000;
+    private static final long DEFERRED_REFRESH_MS = 400;
+
+    private String appliedAppearance = null;
 
     private LauncherViewModel viewModel;
     private TextView timeText;
     private TextView dateText;
     private TextView screenTimeText;
+    private TextView streakPill;
+    private View goalCard;
+    private GoalRingView goalRing;
+    private TextView goalTitle;
+    private TextView intentionText;
+    private TextView allAppsButton;
+    private android.widget.ImageButton lockInButton;
+    private LockInManager lockIn;
     private TextView focusModeText;
     private TextView batteryText;
     private TextView networkText;
@@ -78,6 +93,7 @@ public class LauncherActivity extends AppCompatActivity {
         public void run() {
             viewModel.updateTimeAndDate();
             updateFocusIndicator();
+            updateLockInState();
             clockHandler.postDelayed(this, CLOCK_TICK_MS);
         }
     };
@@ -94,6 +110,15 @@ public class LauncherActivity extends AppCompatActivity {
         timeText = findViewById(R.id.time_text);
         dateText = findViewById(R.id.date_text);
         screenTimeText = findViewById(R.id.screen_time_text);
+        streakPill = findViewById(R.id.streak_pill);
+        goalCard = findViewById(R.id.goal_card);
+        goalRing = findViewById(R.id.goal_ring);
+        goalTitle = findViewById(R.id.goal_title);
+        intentionText = findViewById(R.id.intention_text);
+        allAppsButton = findViewById(R.id.all_apps_button);
+        lockInButton = findViewById(R.id.lock_in_button);
+        lockIn = new LockInManager(this);
+        lockInButton.setOnClickListener(v -> startActivity(new Intent(this, LockInActivity.class)));
         focusModeText = findViewById(R.id.focus_mode_text);
         batteryText = findViewById(R.id.battery_text);
         networkText = findViewById(R.id.network_text);
@@ -113,13 +138,16 @@ public class LauncherActivity extends AppCompatActivity {
 
         findViewById(R.id.settings_button).setOnClickListener(v -> openSettings());
         timeText.setOnClickListener(v -> openAppList(Transitions.Slide.FROM_BOTTOM));
-        screenTimeText.setOnClickListener(v -> {
+        goalCard.setOnClickListener(v -> {
             if (PermissionHelper.hasUsageStatsPermission(this)) {
                 startActivity(new Intent(this, UsageActivity.class));
             } else {
                 showUsageAccessDisclosure(null);
             }
         });
+        streakPill.setOnClickListener(v -> goalCard.performClick());
+        intentionText.setOnClickListener(v -> editIntention());
+        allAppsButton.setOnClickListener(v -> openAppList(Transitions.Slide.FROM_BOTTOM));
 
         // The home screen is the root: Back does nothing here
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -137,22 +165,73 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        applyTheme();
-        applyFontSize();
+        // Only cheap work here: this runs every time the user returns home, during the
+        // system's return animation. Anything heavier is deferred until it has finished.
+        applyAppearanceIfChanged();
 
         viewModel.updateTimeAndDate();
+        updateFocusIndicator();
+        renderIntention();
+        updateLockInState();
         clockHandler.removeCallbacks(clockTick);
         clockHandler.postDelayed(clockTick, CLOCK_TICK_MS);
 
-        viewModel.loadFavorites();
-        updateScreenTimeVisibility();
-        updateQuickInfo();
+        clockHandler.removeCallbacks(deferredRefresh);
+        clockHandler.postDelayed(deferredRefresh, DEFERRED_REFRESH_MS);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         clockHandler.removeCallbacks(clockTick);
+        clockHandler.removeCallbacks(deferredRefresh);
+    }
+
+    private final Runnable deferredRefresh = () -> {
+        viewModel.loadFavorites();
+        updateScreenTimeVisibility();
+        updateQuickInfo();
+        checkStillDefaultLauncher();
+    };
+
+    /**
+     * Re-apply theme, font size and icon setting only when one of them changed
+     */
+    private void applyAppearanceIfChanged() {
+        ThemeManager themeManager = new ThemeManager(this);
+        String signature = themeManager.getSignature() + "/" + Prefs.fontSize(this) + "/" + Prefs.showIcons(this);
+        if (signature.equals(appliedAppearance)) {
+            return;
+        }
+        appliedAppearance = signature;
+        applyTheme();
+        applyFontSize();
+    }
+
+    // ---------------------------------------------------------------------
+    // Default home app
+    // ---------------------------------------------------------------------
+
+    /**
+     * Some phones (and battery savers that keep killing the launcher) silently switch the
+     * home screen back to the built-in launcher. Notice it and offer a fix once per loss.
+     */
+    private void checkStillDefaultLauncher() {
+        SharedPreferences prefs = getSharedPreferences(ONBOARDING_PREFS, MODE_PRIVATE);
+        boolean isDefault = PermissionHelper.isDefaultLauncher(this);
+        boolean wasDefault = prefs.getBoolean(KEY_WAS_DEFAULT, false);
+        if (isDefault != wasDefault) {
+            prefs.edit().putBoolean(KEY_WAS_DEFAULT, isDefault).apply();
+        }
+        if (!isDefault && wasDefault && prefs.getBoolean(KEY_ONBOARDING_DONE, false)) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.default_lost_title)
+                    .setMessage(R.string.default_lost_message)
+                    .setPositiveButton(R.string.set_as_default, (dialog, which) -> promptSetAsDefaultLauncher())
+                    .setNeutralButton(R.string.battery_settings, (dialog, which) -> PermissionHelper.openBatterySettings(this))
+                    .setNegativeButton(R.string.not_now, null)
+                    .show();
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -209,17 +288,7 @@ public class LauncherActivity extends AppCompatActivity {
             favoritesRecyclerView.setVisibility(favorites.isEmpty() ? View.GONE : View.VISIBLE);
         });
 
-        viewModel.getScreenTimeMillis().observe(this, millis -> {
-            if (millis == null) {
-                return;
-            }
-            if (millis < 0) {
-                screenTimeText.setText(R.string.screen_time_tap_to_enable);
-            } else {
-                screenTimeText.setText(getString(R.string.screen_time_today,
-                        ScreenTimeCalculator.format(millis)));
-            }
-        });
+        viewModel.getWellbeing().observe(this, this::renderWellbeing);
 
         viewModel.getAllFocusModes().observe(this, modes -> {
             focusModes = modes;
@@ -243,12 +312,98 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     private void updateScreenTimeVisibility() {
-        if (Prefs.showScreenTime(this)) {
-            screenTimeText.setVisibility(View.VISIBLE);
-            viewModel.refreshScreenTime();
-        } else {
-            screenTimeText.setVisibility(View.GONE);
+        boolean show = Prefs.showScreenTime(this);
+        goalCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        streakPill.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+        if (show) {
+            long goal = viewModel.getWellbeingStore().getGoalMillis();
+            LauncherViewModel.Wellbeing current = viewModel.getWellbeing().getValue();
+            // A changed goal needs a fresh streak right away
+            viewModel.refreshWellbeing(current != null && current.goalMillis != goal);
         }
+    }
+
+    /**
+     * Goal card ("1h 12m of 2h", ring) and streak pill
+     */
+    private void renderWellbeing(LauncherViewModel.Wellbeing state) {
+        if (state == null) {
+            return;
+        }
+        if (state.todayMillis < 0) {
+            goalRing.setProgress(0f, "");
+            goalTitle.setText(R.string.screen_time_tap_to_enable);
+            screenTimeText.setText(R.string.goal_needs_access);
+            streakPill.setText(R.string.streak_start);
+            return;
+        }
+        float progress = StreakCalculator.goalProgress(state.todayMillis, state.goalMillis);
+        goalRing.setProgress(progress, Math.round(progress * 100) + "%");
+        goalTitle.setText(getString(R.string.goal_title,
+                ScreenTimeCalculator.format(state.todayMillis), ScreenTimeCalculator.format(state.goalMillis)));
+        long left = state.goalMillis - state.todayMillis;
+        screenTimeText.setText(left >= 0
+                ? getString(R.string.goal_left, ScreenTimeCalculator.format(left))
+                : getString(R.string.goal_over, ScreenTimeCalculator.format(-left)));
+        streakPill.setText(state.streak > 0
+                ? getResources().getQuantityString(R.plurals.streak_days, state.streak, state.streak)
+                : getString(R.string.streak_start));
+    }
+
+    /**
+     * While a lock-in session runs, the search button shows the time left and opens
+     * the (filtered) app list; tapping the timer opens the session.
+     */
+    private void updateLockInState() {
+        if (lockIn.isActive()) {
+            long minutes = (lockIn.getRemainingMillis() + 59_999) / 60_000;
+            allAppsButton.setText(getString(R.string.lock_in_home_active, minutes));
+        } else {
+            allAppsButton.setText(R.string.search_apps_button);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Daily intention
+    // ---------------------------------------------------------------------
+
+    private void renderIntention() {
+        String intention = viewModel.getWellbeingStore().getTodayIntention();
+        ThemeManager themeManager = new ThemeManager(this);
+        if (intention == null) {
+            intentionText.setText(R.string.intention_prompt);
+            intentionText.setTextColor(themeManager.getSecondaryTextColor());
+        } else {
+            intentionText.setText(intention);
+            intentionText.setTextColor(themeManager.getTextColor());
+        }
+    }
+
+    private void editIntention() {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint(R.string.intention_hint);
+        input.setSingleLine(false);
+        input.setMaxLines(3);
+        input.setFilters(new android.text.InputFilter[] { new android.text.InputFilter.LengthFilter(120) });
+        String current = viewModel.getWellbeingStore().getTodayIntention();
+        if (current != null) {
+            input.setText(current);
+            input.setSelection(current.length());
+        }
+        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        int padding = getResources().getDimensionPixelSize(R.dimen.screen_padding_horizontal);
+        container.setPadding(padding, padding / 2, padding, 0);
+        container.addView(input);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.intention_title)
+                .setView(container)
+                .setPositiveButton(R.string.save, (dialog, which) -> {
+                    viewModel.getWellbeingStore().setTodayIntention(input.getText().toString());
+                    renderIntention();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     // ---------------------------------------------------------------------
@@ -256,7 +411,7 @@ public class LauncherActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
 
     private void setupGestures() {
-        swipeDetector = new SwipeDetector(this, direction -> {
+        swipeDetector = new SwipeDetector(this, getWindow().getDecorView(), direction -> {
             switch (direction) {
                 case UP:
                     openAppList(Transitions.Slide.FROM_BOTTOM);
@@ -373,12 +528,59 @@ public class LauncherActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(backgroundColor);
         findViewById(R.id.launcher_root).setBackgroundColor(backgroundColor);
 
+        int accent = themeManager.getAccentColor();
+        int surface = themeManager.getSurfaceColor();
+        float density = getResources().getDisplayMetrics().density;
+        android.graphics.Typeface body = themeManager.getBodyTypeface();
+
         timeText.setTextColor(textColor);
-        dateText.setTextColor(secondaryTextColor);
-        screenTimeText.setTextColor(secondaryTextColor);
-        focusModeText.setTextColor(secondaryTextColor);
-        batteryText.setTextColor(secondaryTextColor);
-        networkText.setTextColor(secondaryTextColor);
+        timeText.setTypeface(themeManager.getClockTypeface());
+        timeText.setLetterSpacing(themeManager.getClockLetterSpacing());
+        for (TextView view : new TextView[] { dateText, screenTimeText, focusModeText, batteryText, networkText }) {
+            view.setTextColor(secondaryTextColor);
+            view.setTypeface(body);
+        }
+        goalTitle.setTextColor(textColor);
+        goalTitle.setTypeface(body);
+        intentionText.setTypeface(themeManager.getEffectiveTheme() == ThemeManager.STYLE_AURA
+                ? body : android.graphics.Typeface.create("serif", android.graphics.Typeface.ITALIC));
+
+        // Streak pill: surface background, accent flame
+        streakPill.setBackground(rounded(surface, 18 * density));
+        streakPill.setTextColor(textColor);
+        streakPill.setTypeface(body);
+        android.graphics.drawable.Drawable flame = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_flame);
+        if (flame != null) {
+            flame = flame.mutate();
+            flame.setTint(accent);
+            streakPill.setCompoundDrawablesRelativeWithIntrinsicBounds(flame, null, null, null);
+        }
+
+        goalCard.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(secondaryTextColor & 0x33FFFFFF),
+                rounded(surface, 24 * density), null));
+        goalRing.setColors(themeManager.isDarkTheme() ? 0xFF2A2A2D : 0xFFD8CFC1, accent, textColor);
+
+        // Accent-filled pill button
+        allAppsButton.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0x33000000), rounded(accent, 26 * density), null));
+        allAppsButton.setTextColor(themeManager.getOnAccentColor());
+        allAppsButton.setTypeface(body);
+
+        ((android.widget.ImageButton) findViewById(R.id.settings_button)).setColorFilter(secondaryTextColor);
+        android.graphics.drawable.GradientDrawable lockShape = rounded(backgroundColor, 26 * density);
+        lockShape.setStroke(Math.round(density), secondaryTextColor);
+        lockInButton.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(secondaryTextColor & 0x33FFFFFF), lockShape, null));
+        lockInButton.setColorFilter(textColor);
+        renderIntention();
+    }
+
+    private static android.graphics.drawable.GradientDrawable rounded(int color, float radius) {
+        android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+        shape.setColor(color);
+        shape.setCornerRadius(radius);
+        return shape;
     }
 
     private void applyFontSize() {
@@ -391,7 +593,8 @@ public class LauncherActivity extends AppCompatActivity {
         networkText.setTextSize(TypedValue.COMPLEX_UNIT_SP, secondary);
 
         ThemeManager themeManager = new ThemeManager(this);
-        favoritesAdapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(), FontScale.appName(this));
+        favoritesAdapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(),
+                FontScale.appName(this) * 1.35f, themeManager.getBodyTypeface(), themeManager.useLowercaseNames());
     }
 
     // ---------------------------------------------------------------------

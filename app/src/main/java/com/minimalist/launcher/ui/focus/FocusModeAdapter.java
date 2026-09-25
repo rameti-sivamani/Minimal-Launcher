@@ -13,6 +13,8 @@ import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.database.entities.FocusMode;
 import com.minimalist.launcher.data.focus.FocusSchedule;
 import com.minimalist.launcher.utils.AppFilterHelper;
+import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -108,9 +110,22 @@ public class FocusModeAdapter extends RecyclerView.Adapter<FocusModeAdapter.Focu
                 status = context.getString(R.string.status_with_schedule, status, describeSchedule(context, focusMode));
             }
             statusText.setText(status);
-            statusText.setTextColor(context.getColor(
-                    focusMode.isActive() || scheduledNow ? R.color.focus_active : R.color.gray_500));
             activateButton.setText(focusMode.isActive() ? R.string.deactivate : R.string.activate);
+
+            // Card in the current style: surface card, accent status when on
+            ThemeManager theme = new ThemeManager(context);
+            ThemeStyler.card(itemView, theme, 20);
+            nameText.setTextColor(theme.getTextColor());
+            nameText.setTypeface(theme.getBodyTypeface(), android.graphics.Typeface.BOLD);
+            statusText.setTypeface(theme.getBodyTypeface());
+            statusText.setTextColor(focusMode.isActive() || scheduledNow
+                    ? theme.getAccentColor() : theme.getSecondaryTextColor());
+            activateButton.setTextColor(theme.getTextColor());
+            if (activateButton instanceof com.google.android.material.button.MaterialButton) {
+                ((com.google.android.material.button.MaterialButton) activateButton).setStrokeColor(
+                        android.content.res.ColorStateList.valueOf(theme.getSecondaryTextColor()));
+            }
+            deleteButton.setTextColor(theme.getSecondaryTextColor());
             
             activateButton.setOnClickListener(v -> {
                 if (activateListener != null) {

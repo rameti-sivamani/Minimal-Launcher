@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mindful pause shown before opening a distracting app -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pause_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="28dp"
+    android:paddingTop="72dp"
+    android:paddingEnd="28dp"
+    android:paddingBottom="28dp">
+
+    <TextView
+        android:id="@+id/pause_opening"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="Opening Instagram" />
+
+    <FrameLayout
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:layout_marginTop="48dp">
+
+        <View
+            android:id="@+id/pause_glow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/pause_circle"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="44sp"
+            tools:text="4" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/pause_headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:textSize="28sp"
+        tools:text="Breathe in." />
+
+    <TextView
+        android:id="@+id/pause_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.3"
+        android:maxWidth="300dp"
+        android:textSize="16sp"
+        tools:text="This is your 7th time today. 12 minutes left of your 30 minute limit." />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/pause_close"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="@string/pause_dont_need"
+        android:textSize="17sp" />
+
+    <TextView
+        android:id="@+id/pause_open"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:textSize="17sp"
+        tools:text="Open in 4…" />
+
+    <TextView
+        android:id="@+id/pause_footer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textSize="13sp"
+        tools:text="Closing now keeps your 12-day streak going" />
+
+</LinearLayout>

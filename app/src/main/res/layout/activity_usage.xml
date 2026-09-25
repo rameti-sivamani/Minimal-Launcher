@@ -48,6 +48,17 @@
                 android:textSize="@dimen/text_size_secondary" />
 
             <TextView
+                android:id="@+id/usage_recap_button"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="@string/recap_open"
+                android:textSize="16sp" />
+
+            <TextView
                 android:id="@+id/usage_permission_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

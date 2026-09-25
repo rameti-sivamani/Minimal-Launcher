@@ -22,6 +22,7 @@ import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.utils.AppFilterHelper;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,16 +68,12 @@ public class FocusModeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         ThemeManager themeManager = new ThemeManager(this);
-        SystemBars.apply(this, themeManager.isDarkTheme());
-        int bg = themeManager.getBackgroundColor();
-        getWindow().getDecorView().setBackgroundColor(bg);
-        findViewById(R.id.focus_mode_root).setBackgroundColor(bg);
-        findViewById(R.id.focus_app_bar).setBackgroundColor(bg);
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(themeManager.getTextColor());
-        if (toolbar.getNavigationIcon() != null) {
-            toolbar.getNavigationIcon().setTint(themeManager.getTextColor());
-        }
+        ThemeStyler.applyScreen(this, themeManager, findViewById(R.id.focus_mode_root), findViewById(R.id.toolbar));
+        findViewById(R.id.focus_app_bar).setBackgroundColor(themeManager.getBackgroundColor());
+        FloatingActionButton fab = findViewById(R.id.create_fab);
+        fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(themeManager.getAccentColor()));
+        fab.setImageTintList(android.content.res.ColorStateList.valueOf(themeManager.getOnAccentColor()));
+        adapter.notifyDataSetChanged();
     }
 
     private void showCreateDialog() {

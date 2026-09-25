@@ -14,6 +14,25 @@ A minimalist Android home launcher application designed to help users reduce pho
 - No widgets, no notifications preview
 - Monochrome/grayscale color scheme
 
+### 🎨 Styles
+- **Aura** (default): dark, big type, one bright accent (lime, tangerine, sky or orchid)
+- **Mono**: pure black, serif clock, lowercase typewriter names
+- **Paper**: warm off-white, serif, deep accents
+- **Auto**: Aura at night, Paper by day
+
+### 🌱 Wellbeing
+- Daily screen time goal with a progress ring on the home screen
+- Streaks: consecutive days under your goal
+- Daily intention: one line for today, shown on the home screen
+- Mindful pause: a short breathing screen before distracting apps (long-press › Pause before opening),
+  also shown when an app is over its time limit or launch reminder
+
+### 🔒 Lock-in & Weekly Recap
+- **Lock in**: a focus timer (15–90 min). Until it ends, only the apps you pick can be opened from the launcher;
+  ending early needs a 2-second hold
+- **Weekly recap**: time taken back vs. the week before, daily bars, streak, "times you said no" and focus time,
+  with **Share to story** (exports the card as an image; nothing is shared unless you choose to)
+
 ### 📱 Intentional App Access
 - Text-based alphabetical app list
 - Real-time search; press Enter to open the top result

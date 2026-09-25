@@ -25,6 +25,8 @@ public class FavoriteAppsAdapter extends RecyclerView.Adapter<FavoriteAppsAdapte
     private boolean showIcons = false;
     private int textColor = 0xFFFFFFFF;
     private float textSizeSp = 18f;
+    private android.graphics.Typeface typeface = android.graphics.Typeface.DEFAULT;
+    private boolean lowercase = false;
 
     public interface OnAppClickListener {
         void onAppClick(AppInfo app);
@@ -44,10 +46,17 @@ public class FavoriteAppsAdapter extends RecyclerView.Adapter<FavoriteAppsAdapte
     /**
      * Update appearance in one pass (icons, theme color, font size)
      */
-    public void setAppearance(boolean showIcons, int textColor, float textSizeSp) {
+    public void setAppearance(boolean showIcons, int textColor, float textSizeSp,
+            android.graphics.Typeface typeface, boolean lowercase) {
+        if (this.showIcons == showIcons && this.textColor == textColor && this.textSizeSp == textSizeSp
+                && this.typeface.equals(typeface) && this.lowercase == lowercase) {
+            return; // Nothing changed: avoid rebinding every time home is shown
+        }
         this.showIcons = showIcons;
         this.textColor = textColor;
         this.textSizeSp = textSizeSp;
+        this.typeface = typeface;
+        this.lowercase = lowercase;
         notifyDataSetChanged();
     }
 
@@ -80,8 +89,9 @@ public class FavoriteAppsAdapter extends RecyclerView.Adapter<FavoriteAppsAdapte
         }
 
         void bind(AppInfo app) {
-            appName.setText(app.getAppName());
+            appName.setText(lowercase ? app.getAppName().toLowerCase(java.util.Locale.getDefault()) : app.getAppName());
             appName.setTextColor(textColor);
+            appName.setTypeface(typeface);
             appName.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, textSizeSp);
 
             if (showIcons && app.getIcon() != null) {

@@ -45,6 +45,22 @@ public class PermissionHelper {
     }
 
     /**
+     * Open this app's system settings page, where the battery option lives
+     * ("Unrestricted" / "Don't optimise" keeps the launcher from being closed).
+     */
+    public static void openBatterySettings(Activity activity) {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", activity.getPackageName(), null));
+        try {
+            activity.startActivity(intent);
+            android.widget.Toast.makeText(activity, com.minimalist.launcher.R.string.battery_settings_hint,
+                    android.widget.Toast.LENGTH_LONG).show();
+        } catch (ActivityNotFoundException e) {
+            activity.startActivity(new Intent(Settings.ACTION_SETTINGS));
+        }
+    }
+
+    /**
      * Check if this app currently holds the home (default launcher) role
      */
     public static boolean isDefaultLauncher(Context context) {

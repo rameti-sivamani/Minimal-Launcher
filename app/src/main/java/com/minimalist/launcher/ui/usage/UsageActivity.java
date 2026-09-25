@@ -18,10 +18,12 @@ import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.repository.AppRepository;
 import com.minimalist.launcher.data.repository.UsageRepository;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.ui.recap.RecapActivity;
 import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,6 +77,8 @@ public class UsageActivity extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
+        findViewById(R.id.usage_recap_button).setOnClickListener(
+                v -> startActivity(new android.content.Intent(this, RecapActivity.class)));
         findViewById(R.id.usage_grant_button).setOnClickListener(
                 v -> PermissionHelper.requestUsageStatsPermission(this));
 
@@ -100,7 +104,7 @@ public class UsageActivity extends AppCompatActivity {
         findViewById(R.id.usage_permission_text).setVisibility(granted ? View.GONE : View.VISIBLE);
         findViewById(R.id.usage_grant_button).setVisibility(granted ? View.GONE : View.VISIBLE);
         int dataVisibility = granted ? View.VISIBLE : View.GONE;
-        for (int id : new int[] { R.id.usage_today_total, R.id.usage_today_caption, R.id.usage_week_header,
+        for (int id : new int[] { R.id.usage_today_total, R.id.usage_today_caption, R.id.usage_week_header, R.id.usage_recap_button,
                 R.id.usage_week_container, R.id.usage_week_average, R.id.usage_apps_header,
                 R.id.usage_apps_container }) {
             findViewById(id).setVisibility(dataVisibility);
@@ -159,7 +163,8 @@ public class UsageActivity extends AppCompatActivity {
                 String label = daysAgo == 0 ? getString(R.string.today)
                         : dayFormat.format(new Date(UsageRepository.startOfDay(daysAgo)));
                 weekContainer.addView(barRow(label, ScreenTimeCalculator.format(week[i]),
-                        week[i], max, daysAgo == 0 ? text : secondary, text));
+                        week[i], max, daysAgo == 0 ? text : secondary,
+                        daysAgo == 0 ? themeManager.getAccentColor() : secondary));
             }
         }
         ((TextView) findViewById(R.id.usage_week_average)).setText(getString(R.string.usage_daily_average,
@@ -182,7 +187,7 @@ public class UsageActivity extends AppCompatActivity {
                 value = getString(R.string.usage_of_limit, value,
                         ScreenTimeCalculator.format(row.limitMinutes * 60_000L));
             }
-            appsContainer.addView(barRow(row.label, value, row.millis, appMax, text, text));
+            appsContainer.addView(barRow(row.label, value, row.millis, appMax, text, themeManager.getAccentColor()));
         }
     }
 
@@ -200,6 +205,7 @@ public class UsageActivity extends AppCompatActivity {
         labelView.setText(label);
         labelView.setTextColor(labelColor);
         labelView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        labelView.setTypeface(themeManager.getBodyTypeface());
         labelView.setMaxLines(1);
         labelView.setEllipsize(android.text.TextUtils.TruncateAt.END);
         row.addView(labelView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f));
@@ -227,6 +233,7 @@ public class UsageActivity extends AppCompatActivity {
         valueView.setText(value);
         valueView.setTextColor(themeManager.getSecondaryTextColor());
         valueView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        valueView.setTypeface(themeManager.getBodyTypeface());
         valueView.setGravity(Gravity.END);
         row.addView(valueView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
         return row;
@@ -237,19 +244,13 @@ public class UsageActivity extends AppCompatActivity {
     }
 
     private void applyTheme() {
-        int bg = themeManager.getBackgroundColor();
         int text = themeManager.getTextColor();
         int secondary = themeManager.getSecondaryTextColor();
-        SystemBars.apply(this, themeManager.isDarkTheme());
-        getWindow().getDecorView().setBackgroundColor(bg);
-        findViewById(R.id.usage_root).setBackgroundColor(bg);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(bg);
-        toolbar.setTitleTextColor(text);
-        if (toolbar.getNavigationIcon() != null) {
-            toolbar.getNavigationIcon().setTint(text);
-        }
+        ThemeStyler.applyScreen(this, themeManager, findViewById(R.id.usage_root), findViewById(R.id.toolbar));
+        ThemeStyler.applyBodyTypeface(findViewById(R.id.usage_content), themeManager);
+        ((TextView) findViewById(R.id.usage_today_total)).setTypeface(themeManager.getClockTypeface());
+        ThemeStyler.accentButton(findViewById(R.id.usage_recap_button), themeManager);
+        ThemeStyler.outlineButton(findViewById(R.id.usage_grant_button), themeManager);
         ((TextView) findViewById(R.id.usage_today_total)).setTextColor(text);
         ((TextView) findViewById(R.id.usage_today_caption)).setTextColor(secondary);
         ((TextView) findViewById(R.id.usage_permission_text)).setTextColor(text);

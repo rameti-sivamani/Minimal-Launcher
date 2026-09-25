@@ -9,6 +9,7 @@ import androidx.annotation.WorkerThread;
 import com.minimalist.launcher.data.database.AppDatabase;
 import com.minimalist.launcher.data.database.dao.AppUsageDao;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 import com.minimalist.launcher.utils.PermissionHelper;
 
 import java.text.SimpleDateFormat;
@@ -88,6 +89,40 @@ public class UsageRepository {
             totals[i] = sum;
         }
         return totals;
+    }
+
+    /**
+     * Save the screen time of finished days (up to a week back, which is roughly how long
+     * Android keeps usage events) so streaks survive. Days before this app was installed
+     * are skipped so a streak only counts days spent with the launcher.
+     */
+    @WorkerThread
+    public void backfillDailyTotals(WellbeingStore store) {
+        if (!PermissionHelper.hasUsageStatsPermission(context)) {
+            return;
+        }
+        long installedAt = 0;
+        try {
+            installedAt = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).firstInstallTime;
+        } catch (android.content.pm.PackageManager.NameNotFoundException ignored) {
+            // Own package is always present
+        }
+        for (int daysAgo = 1; daysAgo <= 7; daysAgo++) {
+            long start = startOfDay(daysAgo);
+            if (store.hasDailyTotal(daysAgo) || startOfDay(daysAgo - 1) <= installedAt) {
+                continue;
+            }
+            Map<String, Long> perApp = getUsagePerApp(start, startOfDay(daysAgo - 1));
+            if (perApp == null) {
+                return;
+            }
+            long sum = 0;
+            for (long value : perApp.values()) {
+                sum += value;
+            }
+            store.saveDailyTotal(daysAgo, sum);
+        }
+        store.pruneHistory();
     }
 
     /**

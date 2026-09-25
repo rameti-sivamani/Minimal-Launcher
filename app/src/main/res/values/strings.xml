@@ -158,10 +158,22 @@
     </plurals>
 
     <string-array name="themes">
-        <item>OLED Black</item>
-        <item>Dark Gray</item>
-        <item>Light</item>
-        <item>Auto (follow system)</item>
+        <item>Aura (bold, dark)</item>
+        <item>Mono (black and white)</item>
+        <item>Paper (warm, light)</item>
+        <item>Auto (Aura at night, Paper by day)</item>
+    </string-array>
+    <string-array name="accents_dark">
+        <item>Lime</item>
+        <item>Tangerine</item>
+        <item>Sky</item>
+        <item>Orchid</item>
+    </string-array>
+    <string-array name="accents_paper">
+        <item>Rust</item>
+        <item>Forest</item>
+        <item>Ink</item>
+        <item>Plum</item>
     </string-array>
 
     <string-array name="font_sizes">
@@ -244,4 +256,102 @@
     <string name="usage_of_limit">%1$s / %2$s</string>
     <string name="usage_report_needs_access">Turn on usage access to see how much time you spend in each app. The data stays on this device.</string>
     <string name="today">Today</string>
+
+    <!-- Reliability -->
+    <string name="default_lost_title">Your home screen was switched back</string>
+    <string name="default_lost_message">Android changed the home screen back to the phone\'s original launcher. This usually happens when battery saving closes the launcher in the background.\n\nSet Minimalist Launcher as your home app again, and in Battery settings choose \"Unrestricted\" (or \"No restrictions\") so it stays.</string>
+    <string name="battery_settings">Battery settings</string>
+    <string name="battery_settings_hint">Open Battery and choose Unrestricted / No restrictions</string>
+    <string name="keep_launcher_running">Keep launcher running</string>
+    <string name="keep_launcher_running_summary">Stop battery saving from switching your home screen back</string>
+    <string name="report_problem">Report a problem</string>
+    <string name="report_problem_has_crash">A crash was recorded. Tap to share the details</string>
+    <string name="report_problem_no_crash">No crashes recorded</string>
+    <string name="crash_report_subject">Minimalist Launcher crash report</string>
+
+    <!-- Redesign: home -->
+    <string name="search_apps_button">Search apps</string>
+    <string name="goal_title">%1$s of %2$s</string>
+    <string name="goal_left">%1$s left today</string>
+    <string name="goal_over">%1$s over your goal</string>
+    <string name="goal_needs_access">Turn on usage access to track your goal</string>
+    <string name="streak_start">Start a streak today</string>
+    <plurals name="streak_days">
+        <item quantity="one">%1$d-day streak</item>
+        <item quantity="other">%1$d-day streak</item>
+    </plurals>
+    <string name="intention_prompt">Set today\'s intention</string>
+    <string name="intention_title">Today\'s intention</string>
+    <string name="intention_hint">Today I will…</string>
+    <string name="accent_colour">Accent Colour</string>
+    <string name="daily_goal">Daily Screen Time Goal</string>
+    <string name="daily_goal_summary">%1$s a day. Stay under it to keep your streak.</string>
+
+    <!-- Mindful pause -->
+    <string name="pause_opening">Opening %1$s</string>
+    <string name="pause_breathe_in">Breathe in.</string>
+    <string name="pause_breathe_out">Breathe out.</string>
+    <string name="pause_still_want">Still want to go in?</string>
+    <string name="pause_open_in">Open in %1$d…</string>
+    <string name="pause_open">Open %1$s</string>
+    <string name="pause_dont_need">I don\'t need it</string>
+    <string name="pause_footer">Closing now helps keep your streak going</string>
+    <string name="pause_good_choice">Nice. That\'s time back for you.</string>
+    <string name="pause_add">Pause before opening</string>
+    <string name="pause_remove">Stop pausing before opening</string>
+    <string name="pause_added">%1$s will now start with a short breathing pause</string>
+    <string name="pause_removed">%1$s opens straight away again</string>
+    <plurals name="pause_opened_times">
+        <item quantity="one">Opened %1$d time today</item>
+        <item quantity="other">Opened %1$d times today</item>
+    </plurals>
+    <string name="pause_used">%1$s used</string>
+    <string name="pause_left">%1$s left of your limit</string>
+
+    <!-- Lock-in focus timer -->
+    <string name="lock_in">Lock in</string>
+    <string name="lock_in_headline">Lock in</string>
+    <string name="lock_in_caption">Until the timer ends, only the apps you pick below can be opened from the launcher.</string>
+    <string name="lock_in_label_hint">What are you focusing on?</string>
+    <string name="lock_in_duration">How long</string>
+    <string name="lock_in_allowed_apps">Allowed apps</string>
+    <string name="lock_in_apps_change">%1$s · Change</string>
+    <string name="lock_in_no_apps">No apps allowed · Change</string>
+    <string name="lock_in_nothing">no apps</string>
+    <string name="lock_in_start">Start</string>
+    <string name="lock_in_hold_to_end">Hold to end early</string>
+    <string name="lock_in_keep_holding">Keep holding…</string>
+    <string name="lock_in_end_confirm">End this focus session early?</string>
+    <string name="lock_in_done">Session complete. Nice work.</string>
+    <string name="lock_in_ended">Session ended</string>
+    <string name="lock_in_default_label">Focus time</string>
+    <string name="lock_in_only_these">Only %1$s can be opened until the timer ends</string>
+    <string name="lock_in_home_active">Locked in · %1$d min left</string>
+    <string name="lock_in_blocked">You\'re locked in for %1$d more minutes. Only your chosen apps open.</string>
+    <string name="minutes_short">%1$dm</string>
+    <string name="minutes_long">%1$d minutes</string>
+
+    <!-- Weekly recap -->
+    <string name="recap_title">Weekly Recap</string>
+    <string name="recap_open">See your weekly recap</string>
+    <string name="recap_range">Your week · %1$s – %2$s</string>
+    <string name="recap_took_back">You took back</string>
+    <string name="recap_vs_last_week">compared with the week before.</string>
+    <string name="recap_this_week">Screen time this week</string>
+    <string name="recap_more_than_last">%1$s more than the week before. Next week is a fresh start.</string>
+    <plurals name="recap_days_tracked">
+        <item quantity="one">Based on %1$d tracked day.</item>
+        <item quantity="other">Based on %1$d tracked days.</item>
+    </plurals>
+    <string name="recap_no_data_kicker">Your recap is on its way</string>
+    <string name="recap_no_data">Keep usage access on and check back after a full day with the launcher.</string>
+    <string name="recap_no_day_data">no data</string>
+    <string name="recap_tile_streak">day streak</string>
+    <string name="recap_tile_said_no">times you said no</string>
+    <string name="recap_tile_focus">locked in</string>
+    <string name="recap_tile_average">daily average</string>
+    <string name="recap_brand">Minimalist Launcher</string>
+    <string name="recap_share">Share to story</string>
+    <string name="recap_share_text">My week with Minimalist Launcher</string>
+    <string name="recap_share_failed">Couldn\'t share the recap</string>
 </resources>

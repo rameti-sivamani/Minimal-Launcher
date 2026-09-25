@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.FavoritesHelper;
 import com.minimalist.launcher.utils.FontScale;
@@ -35,6 +36,7 @@ import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SwipeDetector;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 import com.minimalist.launcher.utils.Transitions;
 
 import java.util.ArrayList;
@@ -110,7 +112,8 @@ public class AppListActivity extends AppCompatActivity {
         applyTheme();
         ThemeManager themeManager = new ThemeManager(this);
         adapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(),
-                themeManager.getSecondaryTextColor(), FontScale.appName(this), FontScale.secondary(this));
+                themeManager.getSecondaryTextColor(), FontScale.appName(this), FontScale.secondary(this),
+                themeManager.getBodyTypeface(), themeManager.useLowercaseNames());
         TextView searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         if (searchText != null) {
             searchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, FontScale.appName(this));
@@ -155,6 +158,14 @@ public class AppListActivity extends AppCompatActivity {
         }
         labels.add(getString(R.string.daily_time_limit));
         actions.add(() -> showLimitDialog(app));
+        final WellbeingStore wellbeing = new WellbeingStore(this);
+        final boolean paused = wellbeing.isPauseApp(app.getPackageName());
+        labels.add(getString(paused ? R.string.pause_remove : R.string.pause_add));
+        actions.add(() -> {
+            wellbeing.setPauseApp(app.getPackageName(), !paused);
+            Toast.makeText(this, getString(paused ? R.string.pause_removed : R.string.pause_added, app.getAppName()),
+                    Toast.LENGTH_SHORT).show();
+        });
         labels.add(getString(R.string.app_info));
         actions.add(() -> openAppInfo(app));
         labels.add(getString(R.string.uninstall));
@@ -271,7 +282,7 @@ public class AppListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeGesture() {
-        swipeDetector = new SwipeDetector(this, direction -> {
+        swipeDetector = new SwipeDetector(this, getWindow().getDecorView(), direction -> {
             // Close with the gesture that mirrors how the list was opened
             if (direction == SwipeDetector.Direction.LEFT) {
                 Transitions.finish(this, Transitions.Slide.FROM_LEFT);
@@ -304,11 +315,17 @@ public class AppListActivity extends AppCompatActivity {
         findViewById(R.id.app_list_root).setBackgroundColor(bgColor);
         emptyStateText.setTextColor(secondaryTextColor);
 
-        searchView.setBackgroundColor(bgColor);
+        // Search as a rounded pill in the surface colour, without the default underline
+        ThemeStyler.card(searchView, themeManager, 28);
+        View plate = searchView.findViewById(androidx.appcompat.R.id.search_plate);
+        if (plate != null) {
+            plate.setBackgroundColor(0x00000000);
+        }
         TextView searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         if (searchText != null) {
             searchText.setTextColor(textColor);
             searchText.setHintTextColor(secondaryTextColor);
+            searchText.setTypeface(themeManager.getBodyTypeface());
         }
         ImageView searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_mag_icon);
         if (searchIcon != null) {

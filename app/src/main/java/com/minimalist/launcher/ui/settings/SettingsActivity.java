@@ -22,15 +22,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.minimalist.launcher.BuildConfig;
 import com.minimalist.launcher.R;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
+import com.minimalist.launcher.data.wellbeing.WellbeingStore;
 import com.minimalist.launcher.ui.focus.FocusModeActivity;
 import com.minimalist.launcher.ui.usage.UsageActivity;
 import com.minimalist.launcher.utils.AppLimitsManager;
+import com.minimalist.launcher.utils.CrashLog;
 import com.minimalist.launcher.utils.FavoritesHelper;
 import com.minimalist.launcher.utils.HiddenAppsManager;
 import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +84,8 @@ public class SettingsActivity extends AppCompatActivity {
         // Appearance
         onClick(R.id.theme_setting, this::showThemeDialog);
         onClick(R.id.font_size_setting, this::showFontSizeDialog);
+        onClick(R.id.accent_setting, this::showAccentDialog);
+        onClick(R.id.goal_setting, this::showGoalDialog);
         onClick(R.id.show_icons_setting, () -> toggle(Prefs.KEY_SHOW_ICONS, false));
         onClick(R.id.show_day_toggle, () -> toggle(Prefs.KEY_SHOW_DAY_OF_WEEK, true));
         onClick(R.id.quick_info_toggle, () -> toggle(Prefs.KEY_SHOW_QUICK_INFO, false));
@@ -103,6 +108,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         // System
         onClick(R.id.set_default_launcher, this::setAsDefaultLauncher);
+        onClick(R.id.battery_setting, () -> PermissionHelper.openBatterySettings(this));
+        onClick(R.id.crash_report_setting, this::shareCrashReport);
         onClick(R.id.privacy_policy_setting, this::openPrivacyPolicy);
     }
 
@@ -121,6 +128,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void refreshSummaries() {
         setSummary(R.id.theme_summary, themeManager.getThemeName(themeManager.getCurrentTheme()));
+        setSummary(R.id.accent_summary, themeManager.getAccentName(themeManager.getAccentIndex()));
+        setSummary(R.id.goal_summary, getString(R.string.daily_goal_summary,
+                ScreenTimeCalculator.format(new WellbeingStore(this).getGoalMillis())));
         setSummary(R.id.font_size_summary, getResources().getStringArray(R.array.font_sizes)[Prefs.fontSize(this)]);
         setSummary(R.id.show_icons_summary, onOff(Prefs.showIcons(this)));
         setSummary(R.id.show_day_status, onOff(Prefs.showDayOfWeek(this)));
@@ -147,6 +157,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         setSummary(R.id.default_launcher_summary, getString(PermissionHelper.isDefaultLauncher(this)
                 ? R.string.already_default : R.string.set_as_default_desc));
+        setSummary(R.id.battery_summary, getString(R.string.keep_launcher_running_summary));
+        setSummary(R.id.crash_report_summary, getString(CrashLog.read(this) != null
+                ? R.string.report_problem_has_crash : R.string.report_problem_no_crash));
         setSummary(R.id.privacy_policy_summary, getString(R.string.privacy_policy_summary));
         setSummary(R.id.version_summary, BuildConfig.VERSION_NAME);
     }
@@ -185,6 +198,31 @@ public class SettingsActivity extends AppCompatActivity {
                     themeManager.setTheme(which);
                     applyTheme();
                 });
+    }
+
+    private void showAccentDialog() {
+        String[] names = new String[4];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = themeManager.getAccentName(i);
+        }
+        showSingleChoice(R.string.accent_colour, names, themeManager.getAccentIndex(), which -> {
+            themeManager.setAccentIndex(which);
+            applyTheme();
+        });
+    }
+
+    private void showGoalDialog() {
+        WellbeingStore store = new WellbeingStore(this);
+        int[] options = WellbeingStore.GOAL_OPTIONS_MINUTES;
+        String[] labels = new String[options.length];
+        int checked = -1;
+        for (int i = 0; i < options.length; i++) {
+            labels[i] = ScreenTimeCalculator.format(options[i] * 60_000L);
+            if (options[i] == store.getGoalMinutes()) {
+                checked = i;
+            }
+        }
+        showSingleChoice(R.string.daily_goal, labels, checked, which -> store.setGoalMinutes(options[which]));
     }
 
     private void showFontSizeDialog() {
@@ -329,6 +367,28 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Share the last crash report through any app the user picks (email, chat...).
+     * Nothing is sent automatically.
+     */
+    private void shareCrashReport() {
+        String report = CrashLog.read(this);
+        if (report == null) {
+            Toast.makeText(this, R.string.report_problem_no_crash, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crash_report_subject));
+        send.putExtra(Intent.EXTRA_TEXT, report);
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.report_problem)));
+            CrashLog.clear(this);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_browser, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void openPrivacyPolicy() {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))));
@@ -342,35 +402,26 @@ public class SettingsActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
 
     private void applyTheme() {
-        int bgColor = themeManager.getBackgroundColor();
         int textColor = themeManager.getTextColor();
         int secondaryTextColor = themeManager.getSecondaryTextColor();
 
-        SystemBars.apply(this, themeManager.isDarkTheme());
-        getWindow().getDecorView().setBackgroundColor(bgColor);
-        findViewById(R.id.settings_root).setBackgroundColor(bgColor);
-        findViewById(R.id.app_bar_layout).setBackgroundColor(bgColor);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(bgColor);
-        toolbar.setTitleTextColor(textColor);
-        if (toolbar.getNavigationIcon() != null) {
-            toolbar.getNavigationIcon().setTint(textColor);
-        }
-
-        tintTexts(findViewById(R.id.settings_content), textColor, secondaryTextColor);
+        ThemeStyler.applyScreen(this, themeManager, findViewById(R.id.settings_root), findViewById(R.id.toolbar));
+        findViewById(R.id.app_bar_layout).setBackgroundColor(themeManager.getBackgroundColor());
+        ThemeStyler.applyBodyTypeface(findViewById(R.id.settings_content), themeManager);
+        tintTexts(findViewById(R.id.settings_content), textColor, secondaryTextColor, themeManager.getAccentColor());
     }
 
     /**
      * Color text by the tag set in the settings styles: title = primary, others = secondary
      */
-    private void tintTexts(View view, int primary, int secondary) {
+    private void tintTexts(View view, int primary, int secondary, int accent) {
         if (view instanceof TextView) {
-            ((TextView) view).setTextColor("title".equals(view.getTag()) ? primary : secondary);
+            Object tag = view.getTag();
+            ((TextView) view).setTextColor("title".equals(tag) ? primary : "header".equals(tag) ? accent : secondary);
         } else if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) {
-                tintTexts(group.getChildAt(i), primary, secondary);
+                tintTexts(group.getChildAt(i), primary, secondary, accent);
             }
         }
     }

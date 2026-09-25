@@ -6,6 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.minimalist.launcher.utils.CrashLog;
 import com.minimalist.launcher.workers.DailyResetWorker;
 
 import java.util.Calendar;
@@ -20,6 +21,7 @@ public class LauncherApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        CrashLog.install(this);
         
         // Schedule daily reset at midnight
         scheduleDailyReset();
