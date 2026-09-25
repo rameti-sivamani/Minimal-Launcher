@@ -34,11 +34,13 @@ import com.minimalist.launcher.data.model.AppInfo;
 import com.minimalist.launcher.data.usage.ScreenTimeCalculator;
 import com.minimalist.launcher.data.wellbeing.StreakCalculator;
 import com.minimalist.launcher.ui.applist.AppListActivity;
+import com.minimalist.launcher.ui.lockin.LockInActivity;
 import com.minimalist.launcher.ui.settings.SettingsActivity;
 import com.minimalist.launcher.ui.usage.UsageActivity;
 import com.minimalist.launcher.utils.AppFilterHelper;
 import com.minimalist.launcher.utils.FontScale;
 import com.minimalist.launcher.utils.LaunchGate;
+import com.minimalist.launcher.utils.LockInManager;
 import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SwipeDetector;
@@ -74,6 +76,8 @@ public class LauncherActivity extends AppCompatActivity {
     private TextView goalTitle;
     private TextView intentionText;
     private TextView allAppsButton;
+    private android.widget.ImageButton lockInButton;
+    private LockInManager lockIn;
     private TextView focusModeText;
     private TextView batteryText;
     private TextView networkText;
@@ -89,6 +93,7 @@ public class LauncherActivity extends AppCompatActivity {
         public void run() {
             viewModel.updateTimeAndDate();
             updateFocusIndicator();
+            updateLockInState();
             clockHandler.postDelayed(this, CLOCK_TICK_MS);
         }
     };
@@ -111,6 +116,9 @@ public class LauncherActivity extends AppCompatActivity {
         goalTitle = findViewById(R.id.goal_title);
         intentionText = findViewById(R.id.intention_text);
         allAppsButton = findViewById(R.id.all_apps_button);
+        lockInButton = findViewById(R.id.lock_in_button);
+        lockIn = new LockInManager(this);
+        lockInButton.setOnClickListener(v -> startActivity(new Intent(this, LockInActivity.class)));
         focusModeText = findViewById(R.id.focus_mode_text);
         batteryText = findViewById(R.id.battery_text);
         networkText = findViewById(R.id.network_text);
@@ -164,6 +172,7 @@ public class LauncherActivity extends AppCompatActivity {
         viewModel.updateTimeAndDate();
         updateFocusIndicator();
         renderIntention();
+        updateLockInState();
         clockHandler.removeCallbacks(clockTick);
         clockHandler.postDelayed(clockTick, CLOCK_TICK_MS);
 
@@ -339,6 +348,19 @@ public class LauncherActivity extends AppCompatActivity {
         streakPill.setText(state.streak > 0
                 ? getResources().getQuantityString(R.plurals.streak_days, state.streak, state.streak)
                 : getString(R.string.streak_start));
+    }
+
+    /**
+     * While a lock-in session runs, the search button shows the time left and opens
+     * the (filtered) app list; tapping the timer opens the session.
+     */
+    private void updateLockInState() {
+        if (lockIn.isActive()) {
+            long minutes = (lockIn.getRemainingMillis() + 59_999) / 60_000;
+            allAppsButton.setText(getString(R.string.lock_in_home_active, minutes));
+        } else {
+            allAppsButton.setText(R.string.search_apps_button);
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -546,6 +568,11 @@ public class LauncherActivity extends AppCompatActivity {
         allAppsButton.setTypeface(body);
 
         ((android.widget.ImageButton) findViewById(R.id.settings_button)).setColorFilter(secondaryTextColor);
+        android.graphics.drawable.GradientDrawable lockShape = rounded(backgroundColor, 26 * density);
+        lockShape.setStroke(Math.round(density), secondaryTextColor);
+        lockInButton.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(secondaryTextColor & 0x33FFFFFF), lockShape, null));
+        lockInButton.setColorFilter(textColor);
         renderIntention();
     }
 

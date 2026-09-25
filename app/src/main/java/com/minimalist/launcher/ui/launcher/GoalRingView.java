@@ -39,6 +39,16 @@ public class GoalRingView extends View {
         setColors(0xFF2A2A2D, 0xFFC6FF3D, 0xFFF4F4F0);
     }
 
+    /** Size of the centre label in sp and ring thickness in dp */
+    public void setLabelStyle(float textSizeSp, float strokeDp, Typeface typeface) {
+        float density = getResources().getDisplayMetrics().density;
+        textPaint.setTextSize(textSizeSp * getResources().getDisplayMetrics().scaledDensity);
+        textPaint.setTypeface(typeface);
+        trackPaint.setStrokeWidth(strokeDp * density);
+        progressPaint.setStrokeWidth(strokeDp * density);
+        invalidate();
+    }
+
     public void setColors(int track, int progressColor, int text) {
         trackPaint.setColor(track);
         progressPaint.setColor(progressColor);

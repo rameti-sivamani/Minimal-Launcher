@@ -39,6 +39,13 @@ public final class LaunchGate {
 
     public static void launch(Activity activity, AppRepository repository, String packageName,
             OnLaunched onLaunched) {
+        LockInManager lockIn = new LockInManager(activity);
+        if (!lockIn.isAllowed(packageName)) {
+            long minutes = (lockIn.getRemainingMillis() + 59_999) / 60_000;
+            Toast.makeText(activity, activity.getString(R.string.lock_in_blocked, minutes), Toast.LENGTH_LONG).show();
+            return;
+        }
+
         final int limitMinutes = new AppLimitsManager(activity).getLimitMinutes(packageName);
         final boolean warningsEnabled = Prefs.warningsEnabled(activity);
         final int threshold = Prefs.warningThreshold(activity);

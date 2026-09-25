@@ -88,6 +88,32 @@
             android:noHistory="true"
             android:theme="@style/Theme.MinimalistLauncher" />
 
+        <!-- Lock-in focus timer -->
+        <activity
+            android:name=".ui.lockin.LockInActivity"
+            android:exported="false"
+            android:label="@string/lock_in"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.MinimalistLauncher" />
+
+        <!-- Weekly recap (shareable card) -->
+        <activity
+            android:name=".ui.recap.RecapActivity"
+            android:exported="false"
+            android:label="@string/recap_title"
+            android:theme="@style/Theme.MinimalistLauncher" />
+
+        <!-- Shares the recap image with other apps (read-only, on request) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- Focus Mode Activity -->
         <activity
             android:name=".ui.focus.FocusModeActivity"

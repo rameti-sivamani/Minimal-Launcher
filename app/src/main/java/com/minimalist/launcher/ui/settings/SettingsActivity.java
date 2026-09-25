@@ -33,6 +33,7 @@ import com.minimalist.launcher.utils.PermissionHelper;
 import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -401,35 +402,26 @@ public class SettingsActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
 
     private void applyTheme() {
-        int bgColor = themeManager.getBackgroundColor();
         int textColor = themeManager.getTextColor();
         int secondaryTextColor = themeManager.getSecondaryTextColor();
 
-        SystemBars.apply(this, themeManager.isDarkTheme());
-        getWindow().getDecorView().setBackgroundColor(bgColor);
-        findViewById(R.id.settings_root).setBackgroundColor(bgColor);
-        findViewById(R.id.app_bar_layout).setBackgroundColor(bgColor);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(bgColor);
-        toolbar.setTitleTextColor(textColor);
-        if (toolbar.getNavigationIcon() != null) {
-            toolbar.getNavigationIcon().setTint(textColor);
-        }
-
-        tintTexts(findViewById(R.id.settings_content), textColor, secondaryTextColor);
+        ThemeStyler.applyScreen(this, themeManager, findViewById(R.id.settings_root), findViewById(R.id.toolbar));
+        findViewById(R.id.app_bar_layout).setBackgroundColor(themeManager.getBackgroundColor());
+        ThemeStyler.applyBodyTypeface(findViewById(R.id.settings_content), themeManager);
+        tintTexts(findViewById(R.id.settings_content), textColor, secondaryTextColor, themeManager.getAccentColor());
     }
 
     /**
      * Color text by the tag set in the settings styles: title = primary, others = secondary
      */
-    private void tintTexts(View view, int primary, int secondary) {
+    private void tintTexts(View view, int primary, int secondary, int accent) {
         if (view instanceof TextView) {
-            ((TextView) view).setTextColor("title".equals(view.getTag()) ? primary : secondary);
+            Object tag = view.getTag();
+            ((TextView) view).setTextColor("title".equals(tag) ? primary : "header".equals(tag) ? accent : secondary);
         } else if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) {
-                tintTexts(group.getChildAt(i), primary, secondary);
+                tintTexts(group.getChildAt(i), primary, secondary, accent);
             }
         }
     }

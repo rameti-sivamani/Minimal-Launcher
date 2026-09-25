@@ -307,4 +307,51 @@
     </plurals>
     <string name="pause_used">%1$s used</string>
     <string name="pause_left">%1$s left of your limit</string>
+
+    <!-- Lock-in focus timer -->
+    <string name="lock_in">Lock in</string>
+    <string name="lock_in_headline">Lock in</string>
+    <string name="lock_in_caption">Until the timer ends, only the apps you pick below can be opened from the launcher.</string>
+    <string name="lock_in_label_hint">What are you focusing on?</string>
+    <string name="lock_in_duration">How long</string>
+    <string name="lock_in_allowed_apps">Allowed apps</string>
+    <string name="lock_in_apps_change">%1$s · Change</string>
+    <string name="lock_in_no_apps">No apps allowed · Change</string>
+    <string name="lock_in_nothing">no apps</string>
+    <string name="lock_in_start">Start</string>
+    <string name="lock_in_hold_to_end">Hold to end early</string>
+    <string name="lock_in_keep_holding">Keep holding…</string>
+    <string name="lock_in_end_confirm">End this focus session early?</string>
+    <string name="lock_in_done">Session complete. Nice work.</string>
+    <string name="lock_in_ended">Session ended</string>
+    <string name="lock_in_default_label">Focus time</string>
+    <string name="lock_in_only_these">Only %1$s can be opened until the timer ends</string>
+    <string name="lock_in_home_active">Locked in · %1$d min left</string>
+    <string name="lock_in_blocked">You\'re locked in for %1$d more minutes. Only your chosen apps open.</string>
+    <string name="minutes_short">%1$dm</string>
+    <string name="minutes_long">%1$d minutes</string>
+
+    <!-- Weekly recap -->
+    <string name="recap_title">Weekly Recap</string>
+    <string name="recap_open">See your weekly recap</string>
+    <string name="recap_range">Your week · %1$s – %2$s</string>
+    <string name="recap_took_back">You took back</string>
+    <string name="recap_vs_last_week">compared with the week before.</string>
+    <string name="recap_this_week">Screen time this week</string>
+    <string name="recap_more_than_last">%1$s more than the week before. Next week is a fresh start.</string>
+    <plurals name="recap_days_tracked">
+        <item quantity="one">Based on %1$d tracked day.</item>
+        <item quantity="other">Based on %1$d tracked days.</item>
+    </plurals>
+    <string name="recap_no_data_kicker">Your recap is on its way</string>
+    <string name="recap_no_data">Keep usage access on and check back after a full day with the launcher.</string>
+    <string name="recap_no_day_data">no data</string>
+    <string name="recap_tile_streak">day streak</string>
+    <string name="recap_tile_said_no">times you said no</string>
+    <string name="recap_tile_focus">locked in</string>
+    <string name="recap_tile_average">daily average</string>
+    <string name="recap_brand">Minimalist Launcher</string>
+    <string name="recap_share">Share to story</string>
+    <string name="recap_share_text">My week with Minimalist Launcher</string>
+    <string name="recap_share_failed">Couldn\'t share the recap</string>
 </resources>

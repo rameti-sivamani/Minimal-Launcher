@@ -18,6 +18,7 @@ import com.minimalist.launcher.data.repository.UsageRepository;
 import com.minimalist.launcher.utils.AppFilterHelper;
 import com.minimalist.launcher.utils.AppLimitsManager;
 import com.minimalist.launcher.utils.HiddenAppsManager;
+import com.minimalist.launcher.utils.LockInManager;
 import com.minimalist.launcher.utils.Prefs;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class AppListViewModel extends AndroidViewModel {
     private final HiddenAppsManager hiddenAppsManager;
     private final UsageRepository usageRepository;
     private final AppLimitsManager limitsManager;
+    private final LockInManager lockIn;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final MutableLiveData<List<AppInfo>> filteredApps = new MutableLiveData<>();
@@ -70,6 +72,7 @@ public class AppListViewModel extends AndroidViewModel {
         this.hiddenAppsManager = new HiddenAppsManager(application);
         this.usageRepository = new UsageRepository(application);
         this.limitsManager = new AppLimitsManager(application);
+        this.lockIn = new LockInManager(application);
         this.launchCounters = appRepository.getAllLaunchCounters();
     }
 
@@ -131,6 +134,18 @@ public class AppListViewModel extends AndroidViewModel {
                 focusModeDao.getAllFocusModesSync(), Calendar.getInstance());
         if (focusMode != null) {
             result = AppFilterHelper.filterByFocusMode(result, focusMode);
+        }
+
+        // A running lock-in session narrows the list to the apps chosen for it
+        if (lockIn.isActive()) {
+            java.util.Set<String> allowed = lockIn.getAllowedApps();
+            List<AppInfo> locked = new ArrayList<>();
+            for (AppInfo app : result) {
+                if (allowed.contains(app.getPackageName())) {
+                    locked.add(app);
+                }
+            }
+            result = locked;
         }
 
         String query = searchQuery.trim().toLowerCase(Locale.getDefault());

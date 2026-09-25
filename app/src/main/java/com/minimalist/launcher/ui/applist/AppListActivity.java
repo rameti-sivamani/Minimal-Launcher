@@ -36,6 +36,7 @@ import com.minimalist.launcher.utils.Prefs;
 import com.minimalist.launcher.utils.SwipeDetector;
 import com.minimalist.launcher.utils.SystemBars;
 import com.minimalist.launcher.utils.ThemeManager;
+import com.minimalist.launcher.utils.ThemeStyler;
 import com.minimalist.launcher.utils.Transitions;
 
 import java.util.ArrayList;
@@ -111,7 +112,8 @@ public class AppListActivity extends AppCompatActivity {
         applyTheme();
         ThemeManager themeManager = new ThemeManager(this);
         adapter.setAppearance(Prefs.showIcons(this), themeManager.getTextColor(),
-                themeManager.getSecondaryTextColor(), FontScale.appName(this), FontScale.secondary(this));
+                themeManager.getSecondaryTextColor(), FontScale.appName(this), FontScale.secondary(this),
+                themeManager.getBodyTypeface(), themeManager.useLowercaseNames());
         TextView searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         if (searchText != null) {
             searchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, FontScale.appName(this));
@@ -313,11 +315,17 @@ public class AppListActivity extends AppCompatActivity {
         findViewById(R.id.app_list_root).setBackgroundColor(bgColor);
         emptyStateText.setTextColor(secondaryTextColor);
 
-        searchView.setBackgroundColor(bgColor);
+        // Search as a rounded pill in the surface colour, without the default underline
+        ThemeStyler.card(searchView, themeManager, 28);
+        View plate = searchView.findViewById(androidx.appcompat.R.id.search_plate);
+        if (plate != null) {
+            plate.setBackgroundColor(0x00000000);
+        }
         TextView searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         if (searchText != null) {
             searchText.setTextColor(textColor);
             searchText.setHintTextColor(secondaryTextColor);
+            searchText.setTypeface(themeManager.getBodyTypeface());
         }
         ImageView searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_mag_icon);
         if (searchIcon != null) {

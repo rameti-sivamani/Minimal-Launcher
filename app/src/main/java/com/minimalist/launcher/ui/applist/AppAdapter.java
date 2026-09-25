@@ -30,6 +30,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
     private int secondaryTextColor = 0xFF9B9B9B;
     private float nameSizeSp = 19f;
     private float badgeSizeSp = 14f;
+    private android.graphics.Typeface typeface = android.graphics.Typeface.DEFAULT;
+    private boolean lowercase = false;
 
     public interface OnAppClickListener {
         void onAppClick(AppInfo app);
@@ -75,7 +77,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
      * Update icon visibility and theme colors in one pass
      */
     public void setAppearance(boolean showIcons, int textColor, int secondaryTextColor,
-            float nameSizeSp, float badgeSizeSp) {
+            float nameSizeSp, float badgeSizeSp, android.graphics.Typeface typeface, boolean lowercase) {
+        this.typeface = typeface;
+        this.lowercase = lowercase;
         this.showIcons = showIcons;
         this.textColor = textColor;
         this.secondaryTextColor = secondaryTextColor;
@@ -121,7 +125,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppViewHolder> {
         }
 
         public void bind(AppInfo app) {
-            appName.setText(app.getAppName());
+            appName.setText(lowercase ? app.getAppName().toLowerCase(java.util.Locale.getDefault()) : app.getAppName());
+            appName.setTypeface(typeface);
+            launchCounter.setTypeface(typeface);
             appName.setTextColor(textColor);
             appName.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, nameSizeSp);
             launchCounter.setTextColor(secondaryTextColor);
